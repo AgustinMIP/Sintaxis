@@ -17,8 +17,8 @@
   @keyframes successPop{0%{transform:scale(0);opacity:0}65%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
   @keyframes fadeInUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
   @keyframes kioskGlow{0%,100%{box-shadow:0 0 0 0 rgba(232,25,44,.3)}50%{box-shadow:0 0 0 10px rgba(232,25,44,0)}}
-  @keyframes iconPop{0%{transform:scale(1)}50%{transform:scale(.9)}100%{transform:scale(1)}}
   
+  /* Ajustes para la cámara */
   #reader__dashboard_section_csr span { color: white !important; font-family: system-ui; }
   #reader__dashboard_section_csr button { padding: 8px !important; border-radius: 8px !important; }
 </style>
@@ -42,6 +42,7 @@
 <script type="text/babel">
 const {useState,useEffect} = React;
 
+/* ── 1. CONSTANTES Y DATOS ───────────────────────── */
 const C = {
   bg:"#EEF1F6",surface:"#FFFFFF",
   navy:"#0F2342",navyMid:"#1A3A5C",
@@ -87,6 +88,144 @@ const HISTORIAL_MOCK=[
 ];
 
 const REJ=[
-  {id:"seg",reason:"Falta de seguridad en el punto",label:"Sin\nseguridad",col:"#8B2020",bg:"#FDEAEC", Icon:({c})=><svg viewBox="0 0 48 48" width="100%" height="100%"><path d="M24,4 L40,10 L40,26 Q24,44 24,44 Q8,30 8,26 L8,10 Z" fill={c} opacity=".15"/><path d="M24,4 L40,10 L40,26 Q24,44 24,44 Q8,30 8,26 L8,10 Z" fill="none" stroke={c} strokeWidth="2.5"/><text x="24" y="33" textAnchor="middle" fontSize="22" fontWeight="900" fill={c} fontFamily="system-ui,sans-serif">!</text></svg>},
-  {id:"arr",reason:"Pérdida de clientela / arraigo territorial",label:"Mi\nzona",col:"#7A5800",bg:"#FFF4DC", Icon:({c})=><svg viewBox="0 0 48 48" width="100%" height="100%"><polygon points="24,5 40,22 8,22" fill={c} opacity=".75"/><rect x="12" y="22" width="24" height="20" rx="2" fill={c} opacity=".45"/><circle cx="24" cy="31" r="4.5" fill={c} opacity=".9"/><path d="M17,42 Q17,37 24,37 Q31,37 31,42" fill={c} opacity=".9"/></svg>},
-  {id:"dis",reason:"Distancia excesiva a mi zona",label:"Muy\nlejos
+  {id:"seg",reason:"Falta de seguridad",label:"Sin\nseguridad",col:"#8B2020",bg:"#FDEAEC", Icon:({c})=><svg viewBox="0 0 48 48" width="100%" height="100%"><path d="M24,4 L40,10 L40,26 Q24,44 24,44 Q8,30 8,26 L8,10 Z" fill={c} opacity=".15"/><path d="M24,4 L40,10 L40,26 Q24,44 24,44 Q8,30 8,26 L8,10 Z" fill="none" stroke={c} strokeWidth="2.5"/><text x="24" y="33" textAnchor="middle" fontSize="22" fontWeight="900" fill={c} fontFamily="system-ui,sans-serif">!</text></svg>},
+  {id:"arr",reason:"Arraigo territorial",label:"Mi\nzona",col:"#7A5800",bg:"#FFF4DC", Icon:({c})=><svg viewBox="0 0 48 48" width="100%" height="100%"><polygon points="24,5 40,22 8,22" fill={c} opacity=".75"/><rect x="12" y="22" width="24" height="20" rx="2" fill={c} opacity=".45"/><circle cx="24" cy="31" r="4.5" fill={c} opacity=".9"/></svg>},
+  {id:"dis",reason:"Distancia excesiva",label:"Muy\nlejos",col:"#0B5299",bg:"#E5F0FB", Icon:({c})=><svg viewBox="0 0 48 48" width="100%" height="100%"><circle cx="10" cy="10" r="5" fill={c} opacity=".6"/><line x1="10" y1="15" x2="8" y2="30" stroke={c} strokeWidth="2.5"/><line x1="23" y1="24" x2="40" y2="24" stroke={c} strokeWidth="2.5"/><polygon points="36,19 45,24 36,29" fill={c}/></svg>},
+  {id:"app",reason:"Desconfianza en la app",label:"No confío\nen la app",col:"#2A5080",bg:"#E5EEF5", Icon:({c})=><svg viewBox="0 0 48 48" width="100%" height="100%"><rect x="16" y="10" width="16" height="22" rx="1.5" fill="white" opacity=".5"/><line x1="18" y1="12" x2="30" y2="30" stroke={c} strokeWidth="2.8"/><line x1="30" y1="12" x2="18" y2="30" stroke={c} strokeWidth="2.8"/></svg>},
+  {id:"aut",reason:"Desconfianza autoridad",label:"No confío\nen autoridad",col:"#5A3A00",bg:"#F5EFE0", Icon:({c})=><svg viewBox="0 0 48 48" width="100%" height="100%"><line x1="16" y1="14" x2="32" y2="28" stroke={c} strokeWidth="3"/><line x1="32" y1="14" x2="16" y2="28" stroke={c} strokeWidth="3"/></svg>},
+  {id:"otr",reason:"Otro motivo",label:"Otro\nmotivo",col:"#4A6078",bg:"#E8EDF3", Icon:({c})=><svg viewBox="0 0 48 48" width="100%" height="100%"><circle cx="24" cy="24" r="19" fill={c} opacity=".15" stroke={c} strokeWidth="2"/><text x="24" y="34" textAnchor="middle" fontSize="28" fontWeight="900" fill={c} fontFamily="system-ui,sans-serif">?</text></svg>},
+];
+
+function suggestTienda(vendor){
+  const avail=TIENDAS.filter(t=>t.cuposDisponibles>0);
+  const same=avail.filter(t=>t.zona===vendor.zonaHabitual);
+  const pool=same.length>0?same:avail;
+  return [...pool].sort((a,b)=>b.seguridad-a.seguridad)[0]||null;
+}
+
+/* ── 2. COMPONENTES COMPARTIDOS ────────────────── */
+function card(ex={}){return{background:C.surface,borderRadius:12,padding:"13px 15px",boxShadow:"0 1px 8px rgba(15,35,66,0.09)",border:`1px solid ${C.border}`,...ex};}
+function Badge({label,type="info"}){
+  const m={success:[C.successBg,C.success],warning:[C.warningBg,C.warning],danger:[C.dangerBg,C.danger],info:[C.infoBg,C.info],accent:[C.accentLight,C.accentDark],neutral:["#E8EDF3",C.textMid],navy:["rgba(15,35,66,0.12)",C.navy]};
+  const[bg,col]=m[type]||m.info;
+  return <span style={{background:bg,color:col,fontSize:11,fontWeight:700,borderRadius:5,padding:"3px 8px",whiteSpace:"nowrap"}}>{label}</span>;
+}
+function StarRating({value,max=5}){
+  return <span style={{fontSize:11,color:C.warning,fontWeight:700}}>{"★".repeat(Math.round(value))}{"☆".repeat(max-Math.round(value))} {value.toFixed(1)}</span>;
+}
+function BottomNav({tabs,active,onChange}){
+  return(
+    <div style={{background:C.navy,display:"flex",padding:"8px 0 14px",flexShrink:0}}>
+      {tabs.map(t=>(
+        <button key={t.id} onClick={()=>onChange(t.id)} style={{flex:1,background:"none",border:"none",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:2,padding:"4px 0"}}>
+          <span style={{fontSize:18,lineHeight:1}}>{t.icon}</span>
+          <span style={{fontSize:10,fontWeight:active===t.id?700:400,color:active===t.id?C.accent:"rgba(255,255,255,0.5)"}}>{t.label}</span>
+          {active===t.id&&<div style={{width:20,height:2.5,borderRadius:2,background:C.accent}}/>}
+        </button>
+      ))}
+    </div>
+  );
+}
+function QRCode({size=180,id="CM-04821"}){
+  const cols=21;let seed=id.split("").reduce((a,c)=>a+c.charCodeAt(0),0);
+  const rand=()=>{seed=(seed*1664525+1013904223)&0x7fffffff;return seed/0x7fffffff;};
+  const cell=size/cols;
+  const cells=Array.from({length:cols*cols},(_,i)=>{
+    const r=Math.floor(i/cols),c=i%cols;
+    const inC=(r<7&&c<7)||(r<7&&c>=cols-7)||(r>=cols-7&&c<7);
+    if(inC){const rr=r<7?r:r-(cols-7),cc=c<7?c:c-(cols-7);return(rr===0||rr===6||cc===0||cc===6)||(rr>=2&&rr<=4&&cc>=2&&cc<=4);}
+    return rand()>0.48;
+  });
+  return(
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{display:"block"}}>
+      {cells.map((f,i)=>{const r=Math.floor(i/cols),c=i%cols;return f?<rect key={i} x={c*cell+.5} y={r*cell+.5} width={cell-1} height={cell-1} fill={C.navy} rx={.8}/>:null;})}
+    </svg>
+  );
+}
+function HeatMap({zones,onZoneClick,selectedId}){
+  const heat={high:"rgba(232,25,44,0.52)",medium:"rgba(255,162,0,0.52)",low:"rgba(26,110,60,0.48)"};
+  const stk={high:"rgba(180,16,30,0.8)",medium:"rgba(180,110,0,0.8)",low:"rgba(15,80,40,0.8)"};
+  return(
+    <svg width="100%" viewBox="0 0 360 270" style={{display:"block"}}>
+      <rect width="360" height="270" fill="#C8D4DF"/>
+      {[30,70,110,150,190,230].map(y=><line key={y} x1="0" y1={y} x2="360" y2={y} stroke="#B8C8D6" strokeWidth="7"/>)}
+      {[36,86,136,186,236,286,326].map(x=><line key={x} x1={x} y1="0" x2={x} y2="270" stroke="#B8C8D6" strokeWidth="7"/>)}
+      {zones.map(z=>{const w=z.w||88,h=z.h||52;return(
+        <g key={z.id} onClick={()=>onZoneClick&&onZoneClick(z)} style={{cursor:"pointer"}}>
+          <rect x={z.x} y={z.y} width={w} height={h} rx={8} fill={heat[z.nivel]||heat.low} stroke={selectedId===z.id?"white":stk[z.nivel]||stk.low} strokeWidth={selectedId===z.id?2.5:1.5}/>
+          <text x={z.x+w/2} y={z.y+h/2-4} textAnchor="middle" fontSize="9" fontWeight="700" fill="white">{z.nombre}</text>
+          <text x={z.x+w/2} y={z.y+h/2+9} textAnchor="middle" fontSize="8" fill="rgba(255,255,255,0.85)">{z.vendedores} vendedores</text>
+        </g>
+      );})}
+      <circle cx="182" cy="155" r="10" fill={C.accent} opacity=".95"/>
+      <circle cx="182" cy="155" r="20" fill={C.accent} opacity=".18"/>
+      <circle cx="182" cy="155" r="3.5" fill="white"/>
+    </svg>
+  );
+}
+function PinMap({pins=[],userPos=[180,115]}){
+  return(
+    <svg width="100%" viewBox="0 0 360 220" style={{display:"block"}}>
+      <rect width="360" height="220" fill="#C8D4DF"/>
+      {[28,68,108,148,188].map(y=><line key={y} x1="0" y1={y} x2="360" y2={y} stroke="#B8C8D6" strokeWidth="6"/>)}
+      {[36,86,136,186,236,286,326].map(x=><line key={x} x1={x} y1="0" x2={x} y2="220" stroke="#B8C8D6" strokeWidth="6"/>)}
+      {pins.map((p,i)=>(
+        <g key={i} onClick={p.onClick} style={{cursor:"pointer"}}>
+          <ellipse cx={p.x} cy={p.y+2} rx="7" ry="3" fill="rgba(0,0,0,0.18)"/>
+          <path d={`M${p.x},${p.y-2} C${p.x-13},${p.y-16} ${p.x-13},${p.y-34} ${p.x},${p.y-38} C${p.x+13},${p.y-34} ${p.x+13},${p.y-16} ${p.x},${p.y-2}`} fill={p.color||C.accent}/>
+          <circle cx={p.x} cy={p.y-23} r="8" fill="white"/>
+          <text x={p.x} y={p.y-19} textAnchor="middle" fontSize="9" fontWeight="800" fill={p.color||C.accent}>{p.label}</text>
+        </g>
+      ))}
+      <circle cx={userPos[0]} cy={userPos[1]} r="10" fill={C.navy} opacity=".92"/>
+      <circle cx={userPos[0]} cy={userPos[1]} r="20" fill={C.navy} opacity=".18"/>
+      <circle cx={userPos[0]} cy={userPos[1]} r="3.5" fill="white"/>
+    </svg>
+  );
+}
+function NavyHeader({role,name,onLogout,children,onSecretTap}){
+  return(
+    <div style={{background:C.navy,padding:"14px 16px",flexShrink:0}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:children?10:0}}>
+        <div>
+          <div style={{fontSize:10,letterSpacing:"0.1em",color:"rgba(255,255,255,0.5)",fontWeight:700,textTransform:"uppercase"}}>{role}</div>
+          <div style={{fontSize:17,fontWeight:800,color:"white",cursor:onSecretTap?"pointer":"default"}} onClick={onSecretTap ? onSecretTap : undefined}>{name}</div>
+        </div>
+        <button onClick={onLogout} style={{background:"rgba(255,255,255,0.12)",border:"1px solid rgba(255,255,255,0.2)",borderRadius:8,padding:"6px 12px",fontSize:12,color:"white",cursor:"pointer",fontWeight:700}}>Salir</button>
+      </div>
+      {children}
+    </div>
+  );
+}
+function Scroll({children}){return <div style={{flex:1,overflowY:"auto",padding:"12px 15px",display:"flex",flexDirection:"column",gap:10,background:C.bg}}>{children}</div>;}
+function Lbl({children}){return <div style={{fontSize:10,fontWeight:700,color:C.textLight,letterSpacing:"0.08em",textTransform:"uppercase",marginTop:2}}>{children}</div>;}
+function TiendaSuggestionCard({tienda,vendor,onOffer,onSkip}){
+  const same=tienda.zona===vendor.zonaHabitual;
+  return(
+    <div style={{...card(),border:`1.5px solid ${C.success}`}}>
+      <div style={{fontSize:11,fontWeight:700,color:C.success,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:8}}>📍 Punto sugerido por el Algoritmo</div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
+        <div><div style={{fontSize:15,fontWeight:800,color:C.text}}>{tienda.nombre}</div><div style={{fontSize:12,color:C.textMid}}>{tienda.dist} · {tienda.sector}</div></div>
+        {same&&<Badge label="✓ Misma zona" type="success"/>}
+      </div>
+      <div style={{background:C.infoBg, padding:8, borderRadius:8, marginBottom:10, border:`1px solid ${C.info}`}}>
+          <span style={{fontSize:10, fontWeight:700, color:C.info}}>🛡 Dile esto al comerciante:</span>
+          <div style={{fontSize:11, color:C.navy, marginTop:2}}>Es la zona más segura hoy (Seguridad {tienda.seguridad}) y sigues en tu sector ({tienda.sector}).</div>
+      </div>
+      <div style={{display:"flex",gap:10,marginBottom:10,alignItems:"center"}}>
+        <div><span style={{fontSize:10,color:C.textLight,fontWeight:600}}>Seguridad</span><br/><StarRating value={tienda.seguridad}/></div>
+        <div style={{width:1,height:28,background:C.border}}/>
+        <div><span style={{fontSize:10,color:C.textLight,fontWeight:600}}>Cupos</span><br/><span style={{fontSize:13,fontWeight:800,color:C.success}}>{tienda.cuposDisponibles}/{tienda.cuposMax}</span></div>
+      </div>
+      <div style={{display:"flex",gap:8}}>
+        <button onClick={onOffer} style={{flex:2,background:C.accent,color:"white",border:"none",borderRadius:9,padding:"12px",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>Ofrecer punto →</button>
+        <button onClick={onSkip} style={{flex:1,background:C.bg,color:C.textMid,border:`1px solid ${C.border}`,borderRadius:9,padding:"12px",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>Sin oferta</button>
+      </div>
+    </div>
+  );
+}
+
+/* ── 3. FUNCIONES ESPECIALES ───────────────────── */
+function Scanner({ onScan }){
+  useEffect(()=>{
+    const scanner = new Html5QrcodeScanner("reader", { fps
