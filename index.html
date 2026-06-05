@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>PuntoLibre — MVP Completo con Cámara</title>
+<title>PuntoLibre — MVP Operativo Completo</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:#D6DBE4;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:24px 16px 48px;font-family:system-ui,-apple-system,sans-serif;}
@@ -19,23 +19,22 @@
   @keyframes kioskGlow{0%,100%{box-shadow:0 0 0 0 rgba(232,25,44,.3)}50%{box-shadow:0 0 0 10px rgba(232,25,44,0)}}
   @keyframes iconPop{0%{transform:scale(1)}50%{transform:scale(.9)}100%{transform:scale(1)}}
   
-  /* Ajustes visuales para la cámara */
+  /* Ajustes para ocultar textos feos de la librería de la cámara */
   #reader__dashboard_section_csr span { color: white !important; font-family: system-ui; }
   #reader__dashboard_section_csr button { padding: 8px !important; border-radius: 8px !important; }
 </style>
-<!-- Librería para lectura de QR -->
 <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body>
 
 <div class="topbar">
   <h1>📍 PuntoLibre</h1>
-  <span class="pill">v5 · Ecosistema + Cámara</span>
+  <span class="pill">MVP en Terreno</span>
 </div>
 <div id="root" style="width:100%;max-width:390px;"></div>
 <p class="hint">
-  <strong>Fiscal</strong> escanea → <strong>Comerciante</strong> decide con iconos → navegación activa<br>
-  <strong>Kiosko</strong>: acceso sin login por RUT · clave usuarios: <strong>123</strong>
+  <strong>Fiscal</strong> escanea con cámara → <strong>Comerciante</strong> simula recepción tocando su nombre<br>
+  Acceso rápido: <strong>123</strong>
 </p>
 
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -88,20 +87,13 @@ const HISTORIAL_MOCK=[
   {id:"h5",nombre:"Jorge Díaz",rut:"13.444.555-6",time:"09:22",exitoso:true,destino:"Mercado"},
 ];
 
-/* ── MEJORA 2: ICONOS DE RECHAZO ─────────────── */
 const REJ=[
-  {id:"seg",reason:"Falta de seguridad en el punto",label:"Sin\nseguridad",col:"#8B2020",bg:"#FDEAEC",
-   Icon:({c})=><svg viewBox="0 0 48 48" width="100%" height="100%"><path d="M24,4 L40,10 L40,26 Q24,44 24,44 Q8,30 8,26 L8,10 Z" fill={c} opacity=".15"/><path d="M24,4 L40,10 L40,26 Q24,44 24,44 Q8,30 8,26 L8,10 Z" fill="none" stroke={c} strokeWidth="2.5"/><text x="24" y="33" textAnchor="middle" fontSize="22" fontWeight="900" fill={c} fontFamily="system-ui,sans-serif">!</text></svg>},
-  {id:"arr",reason:"Pérdida de clientela / arraigo territorial",label:"Mi\nzona",col:"#7A5800",bg:"#FFF4DC",
-   Icon:({c})=><svg viewBox="0 0 48 48" width="100%" height="100%"><polygon points="24,5 40,22 8,22" fill={c} opacity=".75"/><rect x="12" y="22" width="24" height="20" rx="2" fill={c} opacity=".45"/><circle cx="24" cy="31" r="4.5" fill={c} opacity=".9"/><path d="M17,42 Q17,37 24,37 Q31,37 31,42" fill={c} opacity=".9"/></svg>},
-  {id:"dis",reason:"Distancia excesiva a mi zona",label:"Muy\nlejos",col:"#0B5299",bg:"#E5F0FB",
-   Icon:({c})=><svg viewBox="0 0 48 48" width="100%" height="100%"><circle cx="10" cy="10" r="5" fill={c} opacity=".6"/><line x1="10" y1="15" x2="8" y2="30" stroke={c} strokeWidth="2.5" strokeLinecap="round"/><line x1="10" y1="22" x2="16" y2="28" stroke={c} strokeWidth="2.5" strokeLinecap="round"/><line x1="8" y1="30" x2="13" y2="38" stroke={c} strokeWidth="2.5" strokeLinecap="round"/><line x1="23" y1="24" x2="40" y2="24" stroke={c} strokeWidth="2.5" strokeLinecap="round"/><polygon points="36,19 45,24 36,29" fill={c}/><path d="M44,8 C41,8 38,11 38,14 C38,19 44,25 44,25 C44,25 50,19 50,14 C50,11 47,8 44,8 Z" fill={c} opacity=".6"/><circle cx="44" cy="14" r="3" fill="white" opacity=".8"/></svg>},
-  {id:"app",reason:"Desconfianza en la aplicación",label:"No confío\nen la app",col:"#2A5080",bg:"#E5EEF5",
-   Icon:({c})=><svg viewBox="0 0 48 48" width="100%" height="100%"><rect x="12" y="4" width="24" height="40" rx="4" fill={c} opacity=".18" stroke={c} strokeWidth="2"/><rect x="16" y="10" width="16" height="22" rx="1.5" fill="white" opacity=".5"/><line x1="18" y1="12" x2="30" y2="30" stroke={c} strokeWidth="2.8" strokeLinecap="round"/><line x1="30" y1="12" x2="18" y2="30" stroke={c} strokeWidth="2.8" strokeLinecap="round"/><circle cx="24" cy="38" r="3" fill="none" stroke={c} strokeWidth="1.8" opacity=".7"/></svg>},
-  {id:"aut",reason:"Desconfianza en la autoridad",label:"No confío\nen autoridad",col:"#5A3A00",bg:"#F5EFE0",
-   Icon:({c})=><svg viewBox="0 0 48 48" width="100%" height="100%"><path d="M24,3 L38,8 L38,24 Q24,37 24,37 Q10,24 10,24 L10,8 Z" fill={c} opacity=".18" stroke={c} strokeWidth="2"/><line x1="16" y1="14" x2="32" y2="28" stroke={c} strokeWidth="3" strokeLinecap="round"/><line x1="32" y1="14" x2="16" y2="28" stroke={c} strokeWidth="3" strokeLinecap="round"/></svg>},
-  {id:"otr",reason:"Otro motivo",label:"Otro\nmotivo",col:"#4A6078",bg:"#E8EDF3",
-   Icon:({c})=><svg viewBox="0 0 48 48" width="100%" height="100%"><circle cx="24" cy="24" r="19" fill={c} opacity=".15" stroke={c} strokeWidth="2"/><text x="24" y="34" textAnchor="middle" fontSize="28" fontWeight="900" fill={c} fontFamily="system-ui,sans-serif">?</text></svg>},
+  {id:"seg",reason:"Falta de seguridad en el punto",label:"Sin\nseguridad",col:"#8B2020",bg:"#FDEAEC", Icon:({c})=><svg viewBox="0 0 48 48" width="100%" height="100%"><path d="M24,4 L40,10 L40,26 Q24,44 24,44 Q8,30 8,26 L8,10 Z" fill={c} opacity=".15"/><path d="M24,4 L40,10 L40,26 Q24,44 24,44 Q8,30 8,26 L8,10 Z" fill="none" stroke={c} strokeWidth="2.5"/><text x="24" y="33" textAnchor="middle" fontSize="22" fontWeight="900" fill={c} fontFamily="system-ui,sans-serif">!</text></svg>},
+  {id:"arr",reason:"Pérdida de clientela / arraigo territorial",label:"Mi\nzona",col:"#7A5800",bg:"#FFF4DC", Icon:({c})=><svg viewBox="0 0 48 48" width="100%" height="100%"><polygon points="24,5 40,22 8,22" fill={c} opacity=".75"/><rect x="12" y="22" width="24" height="20" rx="2" fill={c} opacity=".45"/><circle cx="24" cy="31" r="4.5" fill={c} opacity=".9"/><path d="M17,42 Q17,37 24,37 Q31,37 31,42" fill={c} opacity=".9"/></svg>},
+  {id:"dis",reason:"Distancia excesiva a mi zona",label:"Muy\nlejos",col:"#0B5299",bg:"#E5F0FB", Icon:({c})=><svg viewBox="0 0 48 48" width="100%" height="100%"><circle cx="10" cy="10" r="5" fill={c} opacity=".6"/><line x1="10" y1="15" x2="8" y2="30" stroke={c} strokeWidth="2.5" strokeLinecap="round"/><line x1="10" y1="22" x2="16" y2="28" stroke={c} strokeWidth="2.5" strokeLinecap="round"/><line x1="8" y1="30" x2="13" y2="38" stroke={c} strokeWidth="2.5" strokeLinecap="round"/><line x1="23" y1="24" x2="40" y2="24" stroke={c} strokeWidth="2.5" strokeLinecap="round"/><polygon points="36,19 45,24 36,29" fill={c}/><path d="M44,8 C41,8 38,11 38,14 C38,19 44,25 44,25 C44,25 50,19 50,14 C50,11 47,8 44,8 Z" fill={c} opacity=".6"/><circle cx="44" cy="14" r="3" fill="white" opacity=".8"/></svg>},
+  {id:"app",reason:"Desconfianza en la aplicación",label:"No confío\nen la app",col:"#2A5080",bg:"#E5EEF5", Icon:({c})=><svg viewBox="0 0 48 48" width="100%" height="100%"><rect x="12" y="4" width="24" height="40" rx="4" fill={c} opacity=".18" stroke={c} strokeWidth="2"/><rect x="16" y="10" width="16" height="22" rx="1.5" fill="white" opacity=".5"/><line x1="18" y1="12" x2="30" y2="30" stroke={c} strokeWidth="2.8" strokeLinecap="round"/><line x1="30" y1="12" x2="18" y2="30" stroke={c} strokeWidth="2.8" strokeLinecap="round"/><circle cx="24" cy="38" r="3" fill="none" stroke={c} strokeWidth="1.8" opacity=".7"/></svg>},
+  {id:"aut",reason:"Desconfianza en la autoridad",label:"No confío\nen autoridad",col:"#5A3A00",bg:"#F5EFE0", Icon:({c})=><svg viewBox="0 0 48 48" width="100%" height="100%"><path d="M24,3 L38,8 L38,24 Q24,37 24,37 Q10,24 10,24 L10,8 Z" fill={c} opacity=".18" stroke={c} strokeWidth="2"/><line x1="16" y1="14" x2="32" y2="28" stroke={c} strokeWidth="3" strokeLinecap="round"/><line x1="32" y1="14" x2="16" y2="28" stroke={c} strokeWidth="3" strokeLinecap="round"/></svg>},
+  {id:"otr",reason:"Otro motivo",label:"Otro\nmotivo",col:"#4A6078",bg:"#E8EDF3", Icon:({c})=><svg viewBox="0 0 48 48" width="100%" height="100%"><circle cx="24" cy="24" r="19" fill={c} opacity=".15" stroke={c} strokeWidth="2"/><text x="24" y="34" textAnchor="middle" fontSize="28" fontWeight="900" fill={c} fontFamily="system-ui,sans-serif">?</text></svg>},
 ];
 
 function suggestTienda(vendor){
@@ -111,7 +103,6 @@ function suggestTienda(vendor){
   return [...pool].sort((a,b)=>b.seguridad-a.seguridad)[0]||null;
 }
 
-/* ── SHARED COMPONENTS ───────────────────────── */
 function card(ex={}){return{background:C.surface,borderRadius:12,padding:"13px 15px",boxShadow:"0 1px 8px rgba(15,35,66,0.09)",border:`1px solid ${C.border}`,...ex};}
 function Badge({label,type="info"}){
   const m={success:[C.successBg,C.success],warning:[C.warningBg,C.warning],danger:[C.dangerBg,C.danger],info:[C.infoBg,C.info],accent:[C.accentLight,C.accentDark],neutral:["#E8EDF3",C.textMid],navy:["rgba(15,35,66,0.12)",C.navy]};
@@ -134,70 +125,16 @@ function BottomNav({tabs,active,onChange}){
     </div>
   );
 }
-function QRCode({size=180,id="CM-04821"}){
-  const cols=21;let seed=id.split("").reduce((a,c)=>a+c.charCodeAt(0),0);
-  const rand=()=>{seed=(seed*1664525+1013904223)&0x7fffffff;return seed/0x7fffffff;};
-  const cell=size/cols;
-  const cells=Array.from({length:cols*cols},(_,i)=>{
-    const r=Math.floor(i/cols),c=i%cols;
-    const inC=(r<7&&c<7)||(r<7&&c>=cols-7)||(r>=cols-7&&c<7);
-    if(inC){const rr=r<7?r:r-(cols-7),cc=c<7?c:c-(cols-7);return(rr===0||rr===6||cc===0||cc===6)||(rr>=2&&rr<=4&&cc>=2&&cc<=4);}
-    return rand()>0.48;
-  });
-  return(
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{display:"block"}}>
-      {cells.map((f,i)=>{const r=Math.floor(i/cols),c=i%cols;return f?<rect key={i} x={c*cell+.5} y={r*cell+.5} width={cell-1} height={cell-1} fill={C.navy} rx={.8}/>:null;})}
-    </svg>
-  );
-}
-function HeatMap({zones,onZoneClick,selectedId}){
-  const heat={high:"rgba(232,25,44,0.52)",medium:"rgba(255,162,0,0.52)",low:"rgba(26,110,60,0.48)"};
-  const stk={high:"rgba(180,16,30,0.8)",medium:"rgba(180,110,0,0.8)",low:"rgba(15,80,40,0.8)"};
-  return(
-    <svg width="100%" viewBox="0 0 360 270" style={{display:"block"}}>
-      <rect width="360" height="270" fill="#C8D4DF"/>
-      {[30,70,110,150,190,230].map(y=><line key={y} x1="0" y1={y} x2="360" y2={y} stroke="#B8C8D6" strokeWidth="7"/>)}
-      {[36,86,136,186,236,286,326].map(x=><line key={x} x1={x} y1="0" x2={x} y2="270" stroke="#B8C8D6" strokeWidth="7"/>)}
-      {zones.map(z=>{const w=z.w||88,h=z.h||52;return(
-        <g key={z.id} onClick={()=>onZoneClick(z)} style={{cursor:"pointer"}}>
-          <rect x={z.x} y={z.y} width={w} height={h} rx={8} fill={heat[z.nivel]||heat.low} stroke={selectedId===z.id?"white":stk[z.nivel]||stk.low} strokeWidth={selectedId===z.id?2.5:1.5}/>
-          <text x={z.x+w/2} y={z.y+h/2-4} textAnchor="middle" fontSize="9" fontWeight="700" fill="white">{z.nombre}</text>
-          <text x={z.x+w/2} y={z.y+h/2+9} textAnchor="middle" fontSize="8" fill="rgba(255,255,255,0.85)">{z.vendedores} vendedores</text>
-        </g>
-      );})}
-      <circle cx="182" cy="155" r="10" fill={C.accent} opacity=".95"/>
-      <circle cx="182" cy="155" r="20" fill={C.accent} opacity=".18"/>
-      <circle cx="182" cy="155" r="3.5" fill="white"/>
-    </svg>
-  );
-}
-function PinMap({pins=[],userPos=[180,115]}){
-  return(
-    <svg width="100%" viewBox="0 0 360 220" style={{display:"block"}}>
-      <rect width="360" height="220" fill="#C8D4DF"/>
-      {[28,68,108,148,188].map(y=><line key={y} x1="0" y1={y} x2="360" y2={y} stroke="#B8C8D6" strokeWidth="6"/>)}
-      {[36,86,136,186,236,286,326].map(x=><line key={x} x1={x} y1="0" x2={x} y2="220" stroke="#B8C8D6" strokeWidth="6"/>)}
-      {pins.map((p,i)=>(
-        <g key={i} onClick={p.onClick} style={{cursor:"pointer"}}>
-          <ellipse cx={p.x} cy={p.y+2} rx="7" ry="3" fill="rgba(0,0,0,0.18)"/>
-          <path d={`M${p.x},${p.y-2} C${p.x-13},${p.y-16} ${p.x-13},${p.y-34} ${p.x},${p.y-38} C${p.x+13},${p.y-34} ${p.x+13},${p.y-16} ${p.x},${p.y-2}`} fill={p.color||C.accent}/>
-          <circle cx={p.x} cy={p.y-23} r="8" fill="white"/>
-          <text x={p.x} y={p.y-19} textAnchor="middle" fontSize="9" fontWeight="800" fill={p.color||C.accent}>{p.label}</text>
-        </g>
-      ))}
-      <circle cx={userPos[0]} cy={userPos[1]} r="10" fill={C.navy} opacity=".92"/>
-      <circle cx={userPos[0]} cy={userPos[1]} r="20" fill={C.navy} opacity=".18"/>
-      <circle cx={userPos[0]} cy={userPos[1]} r="3.5" fill="white"/>
-    </svg>
-  );
-}
-function NavyHeader({role,name,onLogout,children}){
+
+/* Modificado para soportar el truco de magia (onSecretTap) */
+function NavyHeader({role,name,onLogout,children,onSecretTap}){
   return(
     <div style={{background:C.navy,padding:"14px 16px",flexShrink:0}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:children?10:0}}>
         <div>
           <div style={{fontSize:10,letterSpacing:"0.1em",color:"rgba(255,255,255,0.5)",fontWeight:700,textTransform:"uppercase"}}>{role}</div>
-          <div style={{fontSize:17,fontWeight:800,color:"white"}}>{name}</div>
+          {/* AQUÍ ESTÁ EL BOTÓN SECRETO: Tocar el nombre activa la oferta falsa */}
+          <div style={{fontSize:17,fontWeight:800,color:"white"}} onClick={onSecretTap ? onSecretTap : undefined}>{name}</div>
         </div>
         <button onClick={onLogout} style={{background:"rgba(255,255,255,0.12)",border:"1px solid rgba(255,255,255,0.2)",borderRadius:8,padding:"6px 12px",fontSize:12,color:"white",cursor:"pointer",fontWeight:700}}>Salir</button>
       </div>
@@ -211,18 +148,22 @@ function TiendaSuggestionCard({tienda,vendor,onOffer,onSkip}){
   const same=tienda.zona===vendor.zonaHabitual;
   return(
     <div style={{...card(),border:`1.5px solid ${C.success}`}}>
-      <div style={{fontSize:11,fontWeight:700,color:C.success,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:8}}>📍 Punto sugerido · Algoritmo PuntoLibre</div>
+      <div style={{fontSize:11,fontWeight:700,color:C.success,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:8}}>📍 Punto sugerido por el Algoritmo</div>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
         <div><div style={{fontSize:15,fontWeight:800,color:C.text}}>{tienda.nombre}</div><div style={{fontSize:12,color:C.textMid}}>{tienda.dist} · {tienda.sector}</div></div>
         {same&&<Badge label="✓ Misma zona" type="success"/>}
       </div>
+      
+      {/* ARGUMENTO PARA EL FISCALIZADOR */}
+      <div style={{background:C.infoBg, padding:8, borderRadius:8, marginBottom:10, border:`1px solid ${C.info}`}}>
+          <span style={{fontSize:10, fontWeight:700, color:C.info}}>🛡 Dile esto al comerciante:</span>
+          <div style={{fontSize:11, color:C.navy, marginTop:2}}>Es la zona más segura hoy (Seguridad {tienda.seguridad}) y sigues en tu sector ({tienda.sector}).</div>
+      </div>
+
       <div style={{display:"flex",gap:10,marginBottom:10,alignItems:"center"}}>
         <div><span style={{fontSize:10,color:C.textLight,fontWeight:600}}>Seguridad</span><br/><StarRating value={tienda.seguridad}/></div>
         <div style={{width:1,height:28,background:C.border}}/>
         <div><span style={{fontSize:10,color:C.textLight,fontWeight:600}}>Cupos</span><br/><span style={{fontSize:13,fontWeight:800,color:C.success}}>{tienda.cuposDisponibles}/{tienda.cuposMax}</span></div>
-      </div>
-      <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
-        {tienda.amenidades.map((a,i)=><span key={i} style={{fontSize:10,padding:"3px 8px",background:C.infoBg,color:C.info,borderRadius:5,fontWeight:600}}>{a}</span>)}
       </div>
       <div style={{display:"flex",gap:8}}>
         <button onClick={onOffer} style={{flex:2,background:C.accent,color:"white",border:"none",borderRadius:9,padding:"12px",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>Ofrecer punto →</button>
@@ -240,21 +181,16 @@ function Scanner({ onScan }){
       qrbox: {width: 250, height: 250},
       aspectRatio: 1.0
     }, false);
-    
     scanner.render((textoQR)=>{ 
       scanner.clear(); // Apaga la cámara apenas lee algo
       onScan(textoQR); // Envía el texto a la app
     }, (error)=>{ /* ignorar errores silenciosos de enfoque */ });
-    
-    return ()=> {
-        scanner.clear().catch(e=>console.log(e));
-    };
+    return ()=> { scanner.clear().catch(e=>console.log(e)); };
   },[]);
-  
   return <div id="reader" style={{width:"100%", background:"white", borderRadius:10, overflow:"hidden", border:"none"}}></div>;
 }
 
-/* ── MEJORA 1: NAVEGACIÓN POST-ASIGNACIÓN ────── */
+/* Resto de utilidades visuales de mapas */
 function RouteMap({tienda}){
   const d="M 55,158 L 55,95 L 240,95 L 240,52";
   return(
@@ -366,7 +302,6 @@ function NavigationView({offer,onArrived,onBack}){
   );
 }
 
-/* ── MEJORA 2: GRID DE RECHAZO ───────────────── */
 function RejectionGrid({onSelect,onCancel}){
   const[sel,setSel]=useState(null);
   const tap=(ico)=>{setSel(ico.id);setTimeout(()=>onSelect(ico.reason),280);};
@@ -387,320 +322,11 @@ function RejectionGrid({onSelect,onCancel}){
   );
 }
 
-/* ── MEJORA 3: MODO KIOSKO ───────────────────── */
-function KioskoView({onExit}){
-  const[rut,setRut]=useState('');
-  const[result,setResult]=useState(null);
-  const[timer,setTimer]=useState(30);
-  const[loading,setLoading]=useState(false);
 
-  useEffect(()=>{
-    if(!result)return;
-    setTimer(30);
-    const iv=setInterval(()=>setTimer(t=>{if(t<=1){setResult(null);setRut('');return 30;}return t-1;}),1000);
-    return()=>clearInterval(iv);
-  },[result]);
-
-  const fmt=(raw)=>{
-    const c=raw.replace(/[^0-9kK]/g,'');
-    if(!c)return '';
-    const dv=c.slice(-1).toUpperCase(),num=c.slice(0,-1);
-    if(!num)return dv;
-    let out='',n=num;
-    while(n.length>3){out='.'+n.slice(-3)+out;n=n.slice(0,-3);}
-    return n+out+'-'+dv;
-  };
-
-  const handleInput=(v)=>setRut(fmt(v.replace(/[^0-9kK.]/g,'').replace(/\./g,'').replace(/-/g,'')));
-
-  const search=()=>{
-    setLoading(true);
-    setTimeout(()=>{
-      const clean=rut.replace(/\./g,'').replace(/-/g,'').toLowerCase();
-      const found=VENDORS.find(v=>v.rut.replace(/\./g,'').replace(/-/g,'').toLowerCase()===clean);
-      setResult(found||'notfound');
-      setLoading(false);
-    },500);
-  };
-
-  const reset=()=>{setResult(null);setRut('');};
-
-  return(
-    <div style={{display:"flex",flexDirection:"column",height:"100%",background:C.bg}}>
-      <div style={{background:C.navy,padding:"14px 16px",flexShrink:0}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <div>
-            <div style={{fontSize:10,color:"rgba(255,255,255,0.5)",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em"}}>Terminal Municipal</div>
-            <div style={{fontSize:17,fontWeight:800,color:"white"}}>🖥️ Kiosko PuntoLibre</div>
-          </div>
-          <button onClick={onExit} style={{background:"rgba(255,255,255,0.12)",border:"1px solid rgba(255,255,255,0.2)",borderRadius:8,padding:"6px 12px",fontSize:12,color:"white",cursor:"pointer",fontWeight:700}}>Salir</button>
-        </div>
-      </div>
-      <Scroll>
-        {!result&&(
-          <>
-            <div style={{...card(),textAlign:"center",padding:"22px 16px"}}>
-              <div style={{fontSize:40,marginBottom:10}}>🆔</div>
-              <div style={{fontSize:16,fontWeight:800,color:C.text,marginBottom:6}}>Busca tu QR Personal</div>
-              <div style={{fontSize:12,color:C.textMid}}>Ingresa tu RUT para obtener tu código de identificación sin necesitar un smartphone</div>
-            </div>
-            <div style={card()}>
-              <div style={{fontSize:11,fontWeight:700,color:C.textLight,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:8}}>Tu RUT</div>
-              <input value={rut} onChange={e=>handleInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&rut&&search()} placeholder="12.345.678-9"
-                style={{width:"100%",fontSize:22,fontWeight:800,padding:"14px 16px",borderRadius:10,border:`2px solid ${C.border}`,background:C.bg,color:C.text,outline:"none",letterSpacing:"0.05em",textAlign:"center",fontFamily:"inherit"}}/>
-              <button onClick={search} disabled={!rut||loading}
-                style={{width:"100%",marginTop:10,background:rut?C.accent:"#ccc",color:"white",border:"none",borderRadius:10,padding:"16px",fontSize:16,fontWeight:800,cursor:rut?"pointer":"default",fontFamily:"inherit",boxShadow:rut?"0 6px 18px rgba(232,25,44,0.3)":"none",animation:rut?"kioskGlow 2s ease-in-out infinite":"none"}}>
-                {loading?"Buscando...":"🔍 Buscar mi QR"}
-              </button>
-            </div>
-            <div style={{...card({background:"rgba(11,82,153,0.06)",border:`1px solid ${C.infoBg}`}),padding:"10px 14px"}}>
-              <div style={{fontSize:10,fontWeight:700,color:C.info,marginBottom:7,textTransform:"uppercase",letterSpacing:"0.07em"}}>RUTs de demostración</div>
-              {VENDORS.slice(0,2).map(v=>(
-                <button key={v.uid} onClick={()=>setRut(v.rut)} style={{display:"block",width:"100%",textAlign:"left",background:"none",border:"none",cursor:"pointer",padding:"4px 0",fontFamily:"inherit"}}>
-                  <span style={{fontSize:13,fontWeight:700,color:C.info}}>{v.rut}</span>
-                  <span style={{fontSize:11,color:C.textMid}}> — {v.nombre}</span>
-                </button>
-              ))}
-            </div>
-          </>
-        )}
-        {result==='notfound'&&(
-          <div style={{...card(),textAlign:"center",padding:"26px 16px"}}>
-            <div style={{fontSize:38,marginBottom:10}}>❌</div>
-            <div style={{fontSize:16,fontWeight:800,color:C.danger,marginBottom:6}}>RUT no encontrado</div>
-            <div style={{fontSize:12,color:C.textMid,marginBottom:16}}>El RUT <strong>{rut}</strong> no está registrado en el sistema.</div>
-            <button onClick={reset} style={{background:C.navy,color:"white",border:"none",borderRadius:10,padding:"12px 22px",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>← Intentar de nuevo</button>
-          </div>
-        )}
-        {result&&result!=='notfound'&&(
-          <>
-            <div style={{...card({background:C.infoBg,border:`1px solid ${C.info}`}),display:"flex",alignItems:"center",gap:10,padding:"10px 14px"}}>
-              <div style={{width:36,height:36,borderRadius:"50%",background:C.info,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,fontWeight:900,color:"white",flexShrink:0}}>{timer}</div>
-              <div style={{flex:1}}>
-                <div style={{fontSize:12,fontWeight:700,color:C.info}}>Pantalla activa por {timer}s</div>
-                <div style={{fontSize:10,color:C.textMid}}>Se limpiará automáticamente</div>
-              </div>
-              <button onClick={reset} style={{background:C.info,color:"white",border:"none",borderRadius:8,padding:"6px 10px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>Nueva búsqueda</button>
-            </div>
-            <div style={{...card({display:"flex",flexDirection:"column",alignItems:"center",gap:12,padding:"20px 15px"})}}>
-              <div style={{fontSize:10,fontWeight:700,color:C.textLight,letterSpacing:"0.1em",textTransform:"uppercase"}}>Tu código de identificación</div>
-              <div style={{padding:14,background:"white",borderRadius:12,border:`2px solid ${C.border}`}}><QRCode size={180} id={result.codigo}/></div>
-              <div style={{textAlign:"center"}}>
-                <div style={{fontSize:22,fontWeight:900,color:C.navy,letterSpacing:"0.08em"}}>{result.codigo}</div>
-                <div style={{fontSize:15,fontWeight:800,color:C.text,marginTop:2}}>{result.nombre}</div>
-                <div style={{fontSize:11,color:C.textLight}}>RUT {result.rut}</div>
-              </div>
-              <div style={{width:"100%",padding:"8px 12px",background:C.successBg,borderRadius:8,display:"flex",gap:8,alignItems:"center"}}>
-                <span style={{fontSize:16}}>ℹ️</span>
-                <span style={{fontSize:11,fontWeight:700,color:C.success}}>Muestra este código al fiscalizador cuando te lo solicite</span>
-              </div>
-            </div>
-            <div style={{...card({background:C.navy}),display:"flex",gap:14,padding:"14px 16px"}}>
-              <div style={{flex:1,textAlign:"center"}}>
-                <div style={{fontSize:26,fontWeight:900,color:"white"}}>145</div>
-                <div style={{fontSize:10,color:"rgba(255,255,255,0.5)"}}>puntos de confianza</div>
-              </div>
-              <div style={{width:1,background:"rgba(255,255,255,0.15)"}}/>
-              <div style={{flex:1,textAlign:"center"}}>
-                <div style={{fontSize:26,fontWeight:900,color:C.accent}}>55</div>
-                <div style={{fontSize:10,color:"rgba(255,255,255,0.5)"}}>para siguiente nivel</div>
-              </div>
-            </div>
-          </>
-        )}
-      </Scroll>
-    </div>
-  );
-}
-
-/* ── FISCALIZADOR ────────────────────────────── */
-function FiscalizadorView({onLogout,pilotData,onOffer}){
-  const[tab,setTab]=useState("inicio");
-  const[selZ,setSelZ]=useState(null);
-  const[cupos,setCupos]=useState(false);
-  const[q,setQ]=useState("");
-  
-  // Estados para el Scanner
-  const[step,setStep]=useState(0);
-  const[currentOfferId,setCurrentOfferId]=useState(null);
-  const [scannedVendor, setScannedVendor] = useState(VENDORS[0]);
-  const sv = scannedVendor, st = suggestTienda(sv);
-
-  const[hist]=useState(HISTORIAL_MOCK);
-  const ll={high:"Crítico",medium:"Moderado",low:"Óptimo"};
-  const lt={high:"danger",medium:"warning",low:"success"};
-  const filtered=ZONAS.filter(z=>(!q||z.nombre.toLowerCase().includes(q.toLowerCase()))&&(!cupos||z.cupos>0));
-  const currentOffer=currentOfferId?pilotData.offers.find(o=>o.id===currentOfferId):null;
-  
-  const handleScan = () => { if(step===0) setStep(1); };
-  
-  // Función conectada a la cámara real
-  const handleScanSuccess = (textoQR) => {
-    const found = VENDORS.find(v => v.codigo === textoQR || v.rut === textoQR);
-    if(found) setScannedVendor(found);
-    else setScannedVendor(VENDORS[0]); 
-    setStep(2); 
-  };
-  
-  const handleOffer=()=>{const id=onOffer(sv,st);setCurrentOfferId(id);setStep(3);};
-  const handleSkip=()=>setStep(0);
-  const handleReset=()=>{setStep(0);setCurrentOfferId(null);};
-
-  return(
-    <div style={{display:"flex",flexDirection:"column",height:"100%",background:C.bg}}>
-      <NavyHeader role="Fiscalizador" name="Rodrigo Fuentes" onLogout={onLogout}>
-        <div style={{display:"flex",gap:8,alignItems:"center"}}>
-          <div style={{flex:1,background:"rgba(255,255,255,0.12)",borderRadius:10,padding:"8px 12px",display:"flex",alignItems:"center",gap:7,border:"1px solid rgba(255,255,255,0.15)"}}>
-            <span style={{fontSize:13,color:"rgba(255,255,255,0.5)"}}>🔍</span>
-            <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Buscar zona o RUT..." style={{border:"none",background:"none",outline:"none",flex:1,fontSize:13,color:"white",fontFamily:"inherit"}}/>
-          </div>
-          <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2}}>
-            <div onClick={()=>setCupos(!cupos)} style={{width:42,height:23,borderRadius:12,background:cupos?C.accent:"rgba(255,255,255,0.2)",cursor:"pointer",position:"relative"}}>
-              <div style={{position:"absolute",top:2.5,left:cupos?21:2.5,width:18,height:18,borderRadius:"50%",background:"white",transition:"left .2s"}}/>
-            </div>
-            <span style={{fontSize:8,color:"rgba(255,255,255,0.5)",fontWeight:700}}>Con cupos</span>
-          </div>
-        </div>
-      </NavyHeader>
-      <Scroll>
-        {tab==="inicio"&&(<>
-          <div style={{...card({padding:0,overflow:"hidden"})}}>
-            <HeatMap zones={ZONAS} onZoneClick={setSelZ} selectedId={selZ?.id}/>
-            <div style={{padding:"6px 12px 10px",display:"flex",gap:12,alignItems:"center"}}>
-              {[["#E8192C","Crítico"],["#FFA200","Moderado"],["#1A6E3C","Óptimo"]].map(([c,l])=>(
-                <div key={l} style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:9,height:9,borderRadius:2,background:c}}/><span style={{fontSize:10,color:C.textMid}}>{l}</span></div>
-              ))}
-              <span style={{marginLeft:"auto",fontSize:10,color:C.textLight}}>Toca una zona</span>
-            </div>
-          </div>
-          {selZ&&(
-            <div style={{...card(),borderLeft:`4px solid ${selZ.nivel==="high"?C.danger:selZ.nivel==="medium"?"#D4900A":C.success}`,borderRadius:"0 12px 12px 0"}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-                <div>
-                  <div style={{fontSize:15,fontWeight:800,color:C.text}}>{selZ.nombre}</div>
-                  <div style={{fontSize:12,color:C.textMid,marginTop:2}}>{selZ.vendedores} vendedores activos</div>
-                </div>
-                <div style={{display:"flex",gap:6,alignItems:"center"}}>
-                  <Badge label={ll[selZ.nivel]} type={lt[selZ.nivel]}/>
-                  <button onClick={()=>setSelZ(null)} style={{background:"none",border:"none",color:C.textLight,cursor:"pointer",fontSize:15,padding:2}}>✕</button>
-                </div>
-              </div>
-              <div style={{marginTop:10,padding:"8px 10px",background:selZ.cupos>0?C.successBg:C.dangerBg,borderRadius:7}}>
-                <span style={{fontSize:12,fontWeight:700,color:selZ.cupos>0?C.success:C.danger}}>{selZ.cupos>0?`✓ ${selZ.cupos} cupos disponibles`:"✗ Sin cupos en la zona"}</span>
-              </div>
-            </div>
-          )}
-          <Lbl>Zonas asignadas</Lbl>
-          {filtered.map(z=>(
-            <div key={z.id} style={{...card({padding:"11px 14px",cursor:"pointer"})}} onClick={()=>setSelZ(z)}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                <div><div style={{fontSize:14,fontWeight:700,color:C.text}}>{z.nombre}</div><div style={{fontSize:12,color:C.textMid}}>{z.vendedores} vendedores · {z.cupos} cupos libres</div></div>
-                <Badge label={ll[z.nivel]} type={lt[z.nivel]}/>
-              </div>
-            </div>
-          ))}
-        </>)}
-        {tab==="scanner"&&(
-          <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:14,paddingTop:8}}>
-            {step===0&&(<>
-              <div style={{fontSize:13,color:C.textMid,textAlign:"center"}}>Escanea el QR para asignar un punto formal</div>
-              <button onClick={handleScan} style={{width:"88%",padding:"26px 0",background:C.navy,border:"none",borderRadius:16,display:"flex",flexDirection:"column",alignItems:"center",gap:10,cursor:"pointer",boxShadow:"0 8px 24px rgba(15,35,66,0.28)"}}>
-                <span style={{fontSize:42,lineHeight:1}}>▣</span>
-                <span style={{color:"white",fontSize:17,fontWeight:800}}>Escanear Código QR</span>
-                <span style={{color:"rgba(255,255,255,0.6)",fontSize:11}}>Toca para activar cámara</span>
-              </button>
-            </>)}
-            {step===1&&(
-              <div style={{width:"88%", background:C.navyMid, padding:14, borderRadius:16}}>
-                 <div style={{color:"white", textAlign:"center", marginBottom:10, fontSize:14, fontWeight:700}}>Apunta al código QR</div>
-                 <Scanner onScan={handleScanSuccess} />
-                 <button onClick={()=>setStep(0)} style={{width:"100%", marginTop:12, padding:10, background:"transparent", border:"1px solid rgba(255,255,255,0.3)", borderRadius:8, color:"white", cursor:"pointer"}}>Cancelar Cámara</button>
-              </div>
-            )}
-            {step===2&&(<>
-              <div style={{width:"88%",...card()}}>
-                <div style={{fontSize:11,fontWeight:700,color:C.success,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:8}}>✓ Comerciante identificado</div>
-                <div style={{padding:"10px 12px",background:C.successBg,borderRadius:8,marginBottom:8}}>
-                  <div style={{fontWeight:800,color:C.success,fontSize:14}}>{sv.nombre} · {sv.codigo}</div>
-                  <div style={{fontSize:12,color:C.textMid,marginTop:3}}>RUT {sv.rut} · 145 pts · Confiable ⭐</div>
-                </div>
-                <div style={{display:"flex",gap:7}}>
-                  <div style={{padding:"4px 8px",background:C.infoBg,borderRadius:5,fontSize:11,fontWeight:700,color:C.info}}>📍 {sv.zonaHabitual}</div>
-                  <div style={{padding:"4px 8px",background:C.bg,borderRadius:5,fontSize:11,fontWeight:600,color:C.textMid}}>{sv.categoria}</div>
-                </div>
-              </div>
-              {st&&<div style={{width:"88%"}}><TiendaSuggestionCard tienda={st} vendor={sv} onOffer={handleOffer} onSkip={handleSkip}/></div>}
-            </>)}
-            {step===3&&currentOffer&&(<>
-              <div style={{width:"88%",...card()}}>
-                <div style={{fontSize:13,fontWeight:800,color:C.text,marginBottom:8}}>Oferta enviada</div>
-                <div style={{padding:"10px 12px",background:C.infoBg,borderRadius:8,marginBottom:8}}>
-                  <div style={{fontWeight:700,color:C.info,fontSize:13}}>{currentOffer.vendor.nombre}</div>
-                  <div style={{fontSize:12,color:C.textMid,marginTop:2}}>→ {currentOffer.tienda.nombre} · {currentOffer.tienda.dist}</div>
-                </div>
-                {currentOffer.status==='pending'&&<div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 10px",background:C.warningBg,borderRadius:7}}><span style={{fontSize:16}}>⏳</span><span style={{fontSize:12,fontWeight:600,color:C.warning}}>Esperando decisión del comerciante</span></div>}
-                {currentOffer.status==='accepted'&&<div style={{padding:"10px 12px",background:C.successBg,borderRadius:8}}><div style={{fontWeight:800,color:C.success,fontSize:14}}>✓ Acepta · {currentOffer.arrived?"Llegó al punto":"En camino"}</div><div style={{fontSize:12,color:C.textMid,marginTop:2}}>Decisión a las {currentOffer.decidedAt}</div></div>}
-                {currentOffer.status==='rejected'&&<div style={{padding:"10px 12px",background:C.dangerBg,borderRadius:8}}><div style={{fontWeight:800,color:C.danger,fontSize:14}}>✗ Rechaza</div><div style={{fontSize:12,color:C.textMid,marginTop:2}}>{currentOffer.rejectionReason}</div></div>}
-              </div>
-              <button onClick={handleReset} style={{width:"88%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:9,padding:"12px",fontSize:13,fontWeight:700,color:C.textMid,cursor:"pointer",fontFamily:"inherit"}}>+ Nuevo escaneo</button>
-            </>)}
-            <div style={{width:"88%",...card({padding:"12px 14px"})}}>
-              <div style={{fontSize:11,fontWeight:700,color:C.textLight,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:10}}>Resumen del día</div>
-              <div style={{display:"flex"}}>
-                {[[pilotData.offers.length+4,"Escaneados",C.navy],[pilotData.offers.filter(o=>o.status==='accepted').length+4,"Exitosos",C.success],[pilotData.offers.filter(o=>o.status==='rejected').length,"Rechazos",C.danger]].map(([v,l,col],i)=>(
-                  <div key={l} style={{flex:1,textAlign:"center",borderRight:i<2?`1px solid ${C.border}`:"none"}}>
-                    <div style={{fontSize:24,fontWeight:900,color:col}}>{v}</div>
-                    <div style={{fontSize:10,color:C.textMid}}>{l}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-        {tab==="historial"&&(<>
-          <Lbl>Historial de hoy</Lbl>
-          {pilotData.offers.map(o=>(
-            <div key={o.id} style={card({padding:"11px 14px"})}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-                <div>
-                  <div style={{fontSize:14,fontWeight:700,color:C.text}}>{o.vendor.nombre}</div>
-                  <div style={{fontSize:11,color:C.textLight}}>{o.vendor.codigo}</div>
-                  <div style={{fontSize:12,color:C.textMid,marginTop:3}}>{o.status==='accepted'?`→ ${o.tienda.nombre}${o.arrived?" ✓ Llegó":""}`:o.status==='rejected'?`✗ ${o.rejectionReason}`:'⏳ Pendiente'}</div>
-                </div>
-                <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:4}}>
-                  <span style={{fontSize:11,color:C.textLight}}>{o.timestamp}</span>
-                  <Badge label={o.status==='accepted'?o.arrived?"Llegó":"Aceptó":o.status==='rejected'?"Rechazó":"Pendiente"} type={o.status==='accepted'?"success":o.status==='rejected'?"danger":"warning"}/>
-                </div>
-              </div>
-            </div>
-          ))}
-          {hist.map(h=>(
-            <div key={h.id} style={card({padding:"11px 14px"})}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-                <div>
-                  <div style={{fontSize:14,fontWeight:700,color:C.text}}>{h.nombre}</div>
-                  <div style={{fontSize:11,color:C.textLight}}>{h.rut}</div>
-                  <div style={{fontSize:12,color:C.textMid,marginTop:3}}>{h.exitoso?`→ ${h.destino}`:h.razon||"Sin cupos"}</div>
-                </div>
-                <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:4}}>
-                  <span style={{fontSize:11,color:C.textLight}}>{h.time}</span>
-                  <Badge label={h.exitoso?"Exitoso":"Fallido"} type={h.exitoso?"success":"danger"}/>
-                </div>
-              </div>
-            </div>
-          ))}
-        </>)}
-      </Scroll>
-      <BottomNav tabs={[{id:"inicio",icon:"🗺",label:"Mapa"},{id:"scanner",icon:"▣",label:"Escanear QR"},{id:"historial",icon:"📋",label:"Historial"}]} active={tab} onChange={setTab}/>
-    </div>
-  );
-}
-
-/* ── COMERCIANTE (con las 3 mejoras) ─────────── */
-function ComercianteView({onLogout,latestOffer,onDecide,onArrived}){
+/* ── COMERCIANTE VIEW ─────────────────────────── */
+function ComercianteView({onLogout,latestOffer,onDecide,onArrived, injectFakeOffer}){
   const[tab,setTab]=useState("qr");
-  const[selS,setSelS]=useState(null);
-  const[estado,setEstado]=useState("reubicado");
+  const[estado,setEstado]=useState("en_calle");
   const[showRejGrid,setShowRejGrid]=useState(false);
   const[navigating,setNavigating]=useState(false);
   const pct=(145/200)*100;
@@ -722,7 +348,8 @@ function ComercianteView({onLogout,latestOffer,onDecide,onArrived}){
 
   return(
     <div style={{display:"flex",flexDirection:"column",height:"100%",background:C.bg}}>
-      <NavyHeader role="Comerciante" name="Carlos Muñoz" onLogout={onLogout}>
+      {/* Pasamos injectFakeOffer al botón secreto oculto en el nombre */}
+      <NavyHeader role="Comerciante" name="Carlos Muñoz" onLogout={onLogout} onSecretTap={injectFakeOffer}>
         <div>
           <div style={{display:"flex",justifyContent:"space-between",marginBottom:5}}>
             <span style={{fontSize:11,color:"rgba(255,255,255,0.65)",fontWeight:600}}>Nivel de Confianza</span>
@@ -809,47 +436,18 @@ function ComercianteView({onLogout,latestOffer,onDecide,onArrived}){
 
           <div style={{...card({display:"flex",flexDirection:"column",alignItems:"center",gap:12,padding:"20px 15px"})}}>
             <div style={{fontSize:10,fontWeight:700,color:C.textLight,letterSpacing:"0.1em",textTransform:"uppercase"}}>Mi código de identificación</div>
-            <div style={{padding:14,background:"white",borderRadius:12,border:`2px solid ${C.border}`}}><QRCode size={180} id="CM-04821"/></div>
+            <div style={{padding:14,background:"white",borderRadius:12,border:`2px solid ${C.border}`}}>
+                
+                {/* LA IMAGEN REAL DEL QR */}
+                <img src="qr-code.png" width="180" height="180" style={{display:"block", margin:"0 auto"}} alt="QR Identificación" />
+                
+            </div>
             <div style={{textAlign:"center"}}>
               <div style={{fontSize:20,fontWeight:900,color:C.navy,letterSpacing:"0.1em"}}>CM-04821</div>
               <div style={{fontSize:11,color:C.textLight}}>Carlos Muñoz · RUT 12.345.678-9</div>
             </div>
             <div style={{fontSize:11,color:C.textMid,padding:"6px 14px",background:C.bg,borderRadius:8,border:`1px solid ${C.border}`}}>Muestra este código al fiscalizador</div>
           </div>
-        </>)}
-        {tab==="tiendas"&&(<>
-          <div style={{fontSize:12,color:C.textMid,textAlign:"center"}}>Tiendas Ancla cercanas · toca un pin</div>
-          <div style={{...card({padding:0,overflow:"hidden"})}}>
-            <PinMap pins={TIENDAS.map(s=>({x:s.x,y:s.y,label:s.cuposDisponibles>0?String(s.cuposDisponibles):"✗",color:s.cuposDisponibles>0?C.accent:C.textLight,onClick:()=>setSelS(s)}))}/>
-          </div>
-          {selS&&(
-            <div style={{...card(),borderLeft:`4px solid ${selS.cuposDisponibles>0?C.success:C.danger}`,borderRadius:"0 12px 12px 0"}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-                <div>
-                  <div style={{fontSize:15,fontWeight:800,color:C.text}}>{selS.nombre}</div>
-                  <div style={{fontSize:12,color:C.textMid}}>{selS.dist} · ⭐ {selS.rating}</div>
-                  <div style={{marginTop:4}}><StarRating value={selS.seguridad}/><span style={{fontSize:10,color:C.textLight,marginLeft:4}}>seguridad</span></div>
-                </div>
-                <button onClick={()=>setSelS(null)} style={{background:"none",border:"none",color:C.textLight,cursor:"pointer",fontSize:16,padding:2}}>✕</button>
-              </div>
-              <div style={{display:"flex",gap:5,flexWrap:"wrap",marginTop:8,marginBottom:8}}>
-                {selS.amenidades.map((a,i)=><span key={i} style={{fontSize:10,padding:"3px 8px",background:C.infoBg,color:C.info,borderRadius:5,fontWeight:600}}>{a}</span>)}
-              </div>
-              <div style={{padding:"7px 10px",background:selS.cuposDisponibles>0?C.successBg:C.dangerBg,borderRadius:7}}>
-                <span style={{fontSize:12,fontWeight:700,color:selS.cuposDisponibles>0?C.success:C.danger}}>{selS.cuposDisponibles>0?`${selS.cuposDisponibles} cupos disponibles ahora`:"Sin cupos — local lleno"}</span>
-              </div>
-              {selS.cuposDisponibles>0&&<button style={{marginTop:10,background:C.accent,color:"white",border:"none",borderRadius:9,padding:"12px",fontSize:14,fontWeight:800,cursor:"pointer",width:"100%",fontFamily:"inherit"}}>Solicitar Reubicación Aquí</button>}
-            </div>
-          )}
-          <Lbl>Lista de tiendas</Lbl>
-          {TIENDAS.map(s=>(
-            <div key={s.id} style={{...card({padding:"11px 14px",cursor:"pointer"})}} onClick={()=>setSelS(s)}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                <div><div style={{fontSize:14,fontWeight:700,color:C.text}}>{s.nombre}</div><div style={{fontSize:12,color:C.textMid}}>{s.dist} · 🛡 Seg. {s.seguridad}</div></div>
-                <Badge label={s.cuposDisponibles>0?`${s.cuposDisponibles} cupos`:"Lleno"} type={s.cuposDisponibles>0?"success":"danger"}/>
-              </div>
-            </div>
-          ))}
         </>)}
         {tab==="beneficios"&&(<>
           <div style={card()}>
@@ -862,272 +460,191 @@ function ComercianteView({onLogout,latestOffer,onDecide,onArrived}){
               </div>
             ))}
           </div>
-          <div style={{...card(),background:C.navy}}>
-            <div style={{fontSize:14,fontWeight:800,color:"white",marginBottom:6}}>Próximo nivel · 200 pts</div>
-            <div style={{height:6,background:"rgba(255,255,255,0.18)",borderRadius:3,marginBottom:10}}><div style={{height:"100%",width:`${pct}%`,background:C.accent,borderRadius:3}}/></div>
-            <div style={{fontSize:12,color:"rgba(255,255,255,0.7)"}}>⭐ Prioridad en asignación de cupos</div>
-            <div style={{fontSize:12,color:"rgba(255,255,255,0.7)",marginTop:3}}>📋 Contrato comercial formal</div>
-          </div>
         </>)}
       </Scroll>
-      <BottomNav tabs={[{id:"qr",icon:"▣",label:"Mi QR"},{id:"tiendas",icon:"📍",label:"Tiendas"},{id:"beneficios",icon:"🎁",label:"Beneficios"}]} active={tab} onChange={setTab}/>
+      <BottomNav tabs={[{id:"qr",icon:"▣",label:"Mi QR"},{id:"beneficios",icon:"🎁",label:"Beneficios"}]} active={tab} onChange={setTab}/>
     </div>
   );
 }
 
-/* ── TIENDA ANCLA ────────────────────────────── */
-function TiendaAnclaView({onLogout,pilotData}){
-  const[tab,setTab]=useState("cupos");
-  const[cupos,setCupos]=useState(5);
-  const maxCupos=10;
-  const[vendors,setVendors]=useState(VENDORS);
-  const fin=(uid)=>{setVendors(p=>p.filter(v=>v.uid!==uid));setCupos(c=>Math.min(maxCupos,c+1));};
-  const pct=(cupos/maxCupos)*100;
-  const cc=cupos<=2?C.danger:cupos<=5?"#D4900A":C.success;
-  const incoming=pilotData.offers.filter(o=>o.tienda.id==='t1');
-  return(
-    <div style={{display:"flex",flexDirection:"column",height:"100%",background:C.bg}}>
-      <div style={{background:C.navy,padding:"12px 16px 14px",flexShrink:0}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-          <div>
-            <div style={{fontSize:10,letterSpacing:"0.1em",color:"rgba(255,255,255,0.5)",fontWeight:700,textTransform:"uppercase"}}>Tienda Ancla</div>
-            <div style={{fontSize:17,fontWeight:800,color:"white"}}>Galería El Vecino</div>
-          </div>
-          <button onClick={onLogout} style={{background:"rgba(255,255,255,0.12)",border:"1px solid rgba(255,255,255,0.2)",borderRadius:8,padding:"6px 12px",fontSize:12,color:"white",cursor:"pointer",fontWeight:700}}>Salir</button>
-        </div>
-        <div style={{background:"rgba(255,255,255,0.08)",borderRadius:12,padding:"12px 14px",border:"1px solid rgba(255,255,255,0.12)"}}>
-          <div style={{fontSize:10,fontWeight:700,color:"rgba(255,255,255,0.5)",letterSpacing:"0.07em",textTransform:"uppercase",marginBottom:8}}>Control de cupos en tiempo real</div>
-          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-            <button onClick={()=>cupos>0&&setCupos(cupos-1)} disabled={cupos===0} style={{width:46,height:46,borderRadius:12,background:cupos===0?"rgba(255,255,255,0.06)":C.dangerBg,color:cupos===0?"rgba(255,255,255,0.3)":C.danger,border:`1.5px solid ${cupos===0?"rgba(255,255,255,0.1)":"rgba(192,16,32,0.3)"}`,fontSize:24,fontWeight:800,cursor:cupos===0?"default":"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>−</button>
-            <div style={{textAlign:"center"}}>
-              <div style={{fontSize:44,fontWeight:900,color:cc,lineHeight:1.1}}>{cupos}<span style={{fontSize:20,color:"rgba(255,255,255,0.35)",fontWeight:400}}> / {maxCupos}</span></div>
-              <div style={{fontSize:11,color:"rgba(255,255,255,0.5)"}}>espacios libres ahora</div>
-            </div>
-            <button onClick={()=>cupos<maxCupos&&setCupos(cupos+1)} disabled={cupos===maxCupos} style={{width:46,height:46,borderRadius:12,background:cupos===maxCupos?"rgba(255,255,255,0.06)":C.successBg,color:cupos===maxCupos?"rgba(255,255,255,0.3)":C.success,border:`1.5px solid ${cupos===maxCupos?"rgba(255,255,255,0.1)":"rgba(26,110,60,0.3)"}`,fontSize:24,fontWeight:800,cursor:cupos===maxCupos?"default":"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>+</button>
-          </div>
-          <div style={{marginTop:10,height:6,background:"rgba(255,255,255,0.12)",borderRadius:3,overflow:"hidden"}}>
-            <div style={{height:"100%",width:`${pct}%`,background:cc,borderRadius:3,transition:"width .3s,background .3s"}}/>
-          </div>
-        </div>
-      </div>
-      <Scroll>
-        {tab==="cupos"&&(<>
-          {incoming.length>0&&(<>
-            <Lbl>Asignaciones PuntoLibre ({incoming.length})</Lbl>
-            {incoming.map(o=>(
-              <div key={o.id} style={{...card({padding:"11px 14px"}),border:`1.5px solid ${o.status==='accepted'?C.success:o.status==='rejected'?C.danger:"#D4900A"}`}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                  <div><div style={{fontSize:14,fontWeight:700,color:C.text}}>{o.vendor.nombre}</div><div style={{fontSize:11,color:C.textLight}}>{o.vendor.codigo} · {o.vendor.zonaHabitual}</div></div>
-                  <Badge label={o.status==='accepted'?o.arrived?"Llegó":"En camino":o.status==='rejected'?"Rechazó":"Pendiente"} type={o.status==='accepted'?"success":o.status==='rejected'?"danger":"warning"}/>
-                </div>
-                {o.status==='rejected'&&o.rejectionReason&&<div style={{marginTop:6,fontSize:11,color:C.danger,padding:"4px 8px",background:C.dangerBg,borderRadius:5}}>↳ {o.rejectionReason}</div>}
-              </div>
-            ))}
-          </>)}
-          <Lbl>Comerciantes activos ({vendors.length})</Lbl>
-          {vendors.length===0&&<div style={{textAlign:"center",padding:"30px 0",color:C.textLight,fontSize:13}}>No hay comerciantes activos</div>}
-          {vendors.map(v=>(
-            <div key={v.uid} style={card({padding:"12px 14px"})}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-                <div style={{flex:1}}>
-                  <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:2}}><span style={{fontSize:14,fontWeight:700,color:C.text}}>{v.nombre}</span><Badge label={v.categoria} type="navy"/></div>
-                  <div style={{fontSize:11,color:C.textLight}}>{v.codigo}</div>
-                  <div style={{fontSize:12,color:C.textMid,marginTop:2}}>Llegó: {v.arrival} · Lleva: {v.horasActivo}</div>
-                </div>
-                <button onClick={()=>fin(v.uid)} style={{background:C.dangerBg,color:C.danger,border:"none",borderRadius:8,padding:"7px 10px",fontSize:11,fontWeight:800,cursor:"pointer",whiteSpace:"nowrap",fontFamily:"inherit",marginLeft:8}}>Finalizar</button>
-              </div>
-            </div>
-          ))}
-        </>)}
-        {tab==="mapa"&&(<>
-          <div style={{...card({padding:0,overflow:"hidden"})}}><PinMap pins={[{x:85,y:75,label:"→",color:C.navy,onClick:()=>{}},{x:270,y:72,label:"→",color:C.navy,onClick:()=>{}},{x:130,y:168,label:"→",color:C.navy,onClick:()=>{}}]}/></div>
-          <div style={card()}>
-            <div style={{fontSize:13,fontWeight:800,color:C.text,marginBottom:8}}>Llegadas estimadas</div>
-            {incoming.filter(o=>o.status==='accepted'&&!o.arrived).map((o,i)=>(
-              <div key={o.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"9px 0",borderBottom:`1px solid ${C.border}`}}>
-                <div><div style={{fontSize:13,fontWeight:600,color:C.text}}>{o.vendor.nombre}</div><div style={{fontSize:11,color:C.textLight}}>{o.vendor.codigo}</div></div>
-                <Badge label="~4 min" type="navy"/>
-              </div>
-            ))}
-            {[["Roberto Silva","~8 min","RS-08821"],["Camila Torres","~15 min","CT-03341"]].map(([nm,eta,id],i)=>(
-              <div key={id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"9px 0",borderBottom:i<1?`1px solid ${C.border}`:"none"}}>
-                <div><div style={{fontSize:13,fontWeight:600,color:C.text}}>{nm}</div><div style={{fontSize:11,color:C.textLight}}>{id}</div></div>
-                <Badge label={eta} type="navy"/>
-              </div>
-            ))}
-          </div>
-        </>)}
-        {tab==="reporte"&&(<>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-            {[[(maxCupos-cupos),"En uso ahora","accent"],[cupos,"Disponibles","success"],[vendors.length,"Activos hoy","info"],[maxCupos,"Aforo total","neutral"]].map(([v,l,t],i)=>(
-              <div key={i} style={{...card({textAlign:"center",padding:"14px 10px"})}}>
-                <div style={{fontSize:26,fontWeight:900,color:C[t]||C.text}}>{v}</div>
-                <div style={{fontSize:11,color:C.textMid,marginTop:3}}>{l}</div>
-              </div>
-            ))}
-          </div>
-          <div style={card()}>
-            <div style={{fontSize:11,color:C.textMid,marginBottom:6,fontWeight:600}}>Capacidad utilizada</div>
-            <div style={{height:10,background:C.bg,borderRadius:5,overflow:"hidden",border:`1px solid ${C.border}`}}><div style={{height:"100%",width:`${Math.round(100-pct)}%`,background:C.accent,borderRadius:5}}/></div>
-            <div style={{fontSize:12,color:C.textLight,marginTop:5,textAlign:"right"}}>{Math.round(100-pct)}% ocupado</div>
-          </div>
-        </>)}
-      </Scroll>
-      <BottomNav tabs={[{id:"cupos",icon:"👥",label:"Cupos"},{id:"mapa",icon:"📍",label:"En camino"},{id:"reporte",icon:"📊",label:"Reporte"}]} active={tab} onChange={setTab}/>
-    </div>
-  );
-}
+/* ── FISCALIZADOR VIEW ───────────────────────── */
+function FiscalizadorView({onLogout,pilotData,onOffer}){
+  const[tab,setTab]=useState("scanner");
+  const[step,setStep]=useState(0);
+  const[currentOfferId,setCurrentOfferId]=useState(null);
+  
+  const [scannedVendor, setScannedVendor] = useState(VENDORS[0]);
+  const sv = scannedVendor, st = suggestTienda(sv);
 
-/* ── ADMIN ───────────────────────────────────── */
-function AdminView({onLogout,pilotData}){
-  const[tab,setTab]=useState("dashboard");
-  const ok=HISTORIAL_MOCK.filter(h=>h.exitoso).length;
-  const crit=ZONAS.filter(z=>z.nivel==="high");
-  const ranking=[...TIENDAS].sort((a,b)=>(b.cuposMax-b.cuposDisponibles)-(a.cuposMax-a.cuposDisponibles));
-  const offers=pilotData.offers;
-  const accepted=offers.filter(o=>o.status==='accepted').length;
-  const rejected=offers.filter(o=>o.status==='rejected').length;
-  const arrived=offers.filter(o=>o.arrived).length;
-  const total=accepted+rejected;
-  const rate=total>0?Math.round((accepted/total)*100):null;
-  const rejReasons={};
-  offers.filter(o=>o.status==='rejected').forEach(o=>{rejReasons[o.rejectionReason]=(rejReasons[o.rejectionReason]||0)+1;});
-  let criterion=null,ctype="neutral",cdesc="";
-  if(total>=1){
-    const dCount=Object.entries(rejReasons).filter(([k])=>k.includes("Desconfianza")).reduce((a,[,v])=>a+v,0);
-    const sCount=Object.entries(rejReasons).filter(([k])=>k.includes("seguridad")||k.includes("arraigo")||k.includes("Distancia")).reduce((a,[,v])=>a+v,0);
-    if(rate>=50){criterion="PERSEVERAR";ctype="success";cdesc="Más del 50% acepta. Escalar el piloto a más zonas.";}
-    else if(sCount>=dCount){criterion="AJUSTAR";ctype="warning";cdesc="El rechazo es por seguridad o arraigo. Iterar el algoritmo de asignación.";}
-    else{criterion="PIVOTEAR";ctype="danger";cdesc="El rechazo es por desconfianza. Cambiar la estrategia de adopción.";}
-  }
+  const currentOffer=currentOfferId?pilotData.offers.find(o=>o.id===currentOfferId):null;
+  const handleScan = () => { if(step===0) setStep(1); };
+  
+  const handleScanSuccess = (textoQR) => {
+    const found = VENDORS.find(v => v.codigo === textoQR || v.rut === textoQR);
+    if(found) setScannedVendor(found);
+    else setScannedVendor(VENDORS[0]); 
+    setStep(2); 
+  };
+  
+  const handleOffer=()=>{const id=onOffer(sv,st);setCurrentOfferId(id);setStep(3);};
+  const handleSkip=()=>setStep(0);
+  const handleReset=()=>{setStep(0);setCurrentOfferId(null);};
+
   return(
     <div style={{display:"flex",flexDirection:"column",height:"100%",background:C.bg}}>
-      <div style={{background:C.navy,padding:"12px 16px 14px",flexShrink:0}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <div>
-            <div style={{fontSize:10,letterSpacing:"0.1em",color:"rgba(255,255,255,0.5)",fontWeight:700,textTransform:"uppercase"}}>Administrador</div>
-            <div style={{fontSize:17,fontWeight:800,color:"white"}}>Panel de Control</div>
-          </div>
-          <button onClick={onLogout} style={{background:"rgba(255,255,255,0.12)",border:"1px solid rgba(255,255,255,0.2)",borderRadius:8,padding:"6px 12px",fontSize:12,color:"white",cursor:"pointer",fontWeight:700}}>Salir</button>
-        </div>
-        <div style={{marginTop:6,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-          <span style={{fontSize:11,color:"rgba(255,255,255,0.45)"}}>{new Date().toLocaleDateString("es-CL",{weekday:"long",day:"numeric",month:"long"})}</span>
-          <div style={{display:"flex",alignItems:"center",gap:6}}><div style={{width:7,height:7,borderRadius:"50%",background:"#3DCC80"}}/><span style={{fontSize:10,color:"rgba(255,255,255,0.55)",fontWeight:600}}>Sistema activo</span></div>
-        </div>
-      </div>
+      <NavyHeader role="Fiscalizador" name="Rodrigo Fuentes" onLogout={onLogout} />
       <Scroll>
-        {tab==="dashboard"&&(<>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-            {[[HISTORIAL_MOCK.length,"Reubicaciones hoy","+12% vs ayer","accent"],[ok,"Exitosas hoy",`${HISTORIAL_MOCK.length-ok} fallidas`,"success"],[ok*30,"Puntos entregados",`${ok}×30 pts`,"info"],[crit.length,"Zonas críticas",`de ${ZONAS.length} totales`,crit.length>0?"danger":"success"]].map(([v,lbl,sub,t])=>(
-              <div key={lbl} style={card({padding:"14px 12px"})}>
-                <div style={{fontSize:10,color:C.textMid,fontWeight:600,marginBottom:4}}>{lbl}</div>
-                <div style={{fontSize:28,fontWeight:900,color:C.text}}>{v}</div>
-                <div style={{marginTop:5}}><Badge label={sub} type={t}/></div>
+        {tab==="scanner"&&(
+          <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:14,paddingTop:8}}>
+            {step===0&&(<>
+              <div style={{fontSize:13,color:C.textMid,textAlign:"center"}}>Escanea el QR para asignar un punto formal</div>
+              <button onClick={handleScan} style={{width:"88%",padding:"26px 0",background:C.navy,border:"none",borderRadius:16,display:"flex",flexDirection:"column",alignItems:"center",gap:10,cursor:"pointer",boxShadow:"0 8px 24px rgba(15,35,66,0.28)"}}>
+                <span style={{fontSize:42,lineHeight:1}}>▣</span>
+                <span style={{color:"white",fontSize:17,fontWeight:800}}>Escanear Código QR</span>
+                <span style={{color:"rgba(255,255,255,0.6)",fontSize:11}}>Toca para activar cámara</span>
+              </button>
+            </>)}
+            {step===1&&(
+              <div style={{width:"88%", background:C.navyMid, padding:14, borderRadius:16}}>
+                 <div style={{color:"white", textAlign:"center", marginBottom:10, fontSize:14, fontWeight:700}}>Apunta al código QR</div>
+                 <Scanner onScan={handleScanSuccess} />
+                 <button onClick={()=>setStep(0)} style={{width:"100%", marginTop:12, padding:10, background:"transparent", border:"1px solid rgba(255,255,255,0.3)", borderRadius:8, color:"white", cursor:"pointer"}}>Cancelar Cámara</button>
               </div>
-            ))}
-          </div>
-          {crit.length>0&&(
-            <div style={{background:C.dangerBg,borderRadius:12,padding:"13px 14px",border:"1px solid rgba(192,16,32,0.18)"}}>
-              <div style={{fontSize:12,fontWeight:800,color:C.danger,marginBottom:8}}>⚠ Zonas Críticas</div>
-              {crit.map((z,i)=>(
-                <div key={z.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"7px 0",borderBottom:i<crit.length-1?"1px solid rgba(192,16,32,0.15)":"none"}}>
-                  <div><div style={{fontSize:14,fontWeight:800,color:C.danger}}>{z.nombre}</div><div style={{fontSize:11,color:"#B85555"}}>{z.vendedores} vendedores · {z.cupos} cupos</div></div>
-                  <Badge label="Crítico" type="danger"/>
+            )}
+            {step===2&&(<>
+              <div style={{width:"88%",...card()}}>
+                <div style={{fontSize:11,fontWeight:700,color:C.success,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:8}}>✓ Comerciante identificado</div>
+                <div style={{padding:"10px 12px",background:C.successBg,borderRadius:8,marginBottom:8}}>
+                  <div style={{fontWeight:800,color:C.success,fontSize:14}}>{sv.nombre} · {sv.codigo}</div>
+                  <div style={{fontSize:12,color:C.textMid,marginTop:3}}>RUT {sv.rut} · 145 pts · Confiable ⭐</div>
                 </div>
-              ))}
-            </div>
-          )}
-          <Lbl>Ranking Tiendas Ancla</Lbl>
-          {ranking.map((t,i)=>(
-            <div key={t.id} style={card({padding:"11px 14px"})}>
-              <div style={{display:"flex",alignItems:"center",gap:12}}>
-                <div style={{width:30,height:30,borderRadius:"50%",flexShrink:0,background:i===0?C.accent:i===1?"#E6EEF6":C.bg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:900,color:i===0?"white":i===1?C.navy:C.textLight}}>{i+1}</div>
-                <div style={{flex:1}}><div style={{fontSize:13,fontWeight:700,color:C.text}}>{t.nombre}</div><div style={{fontSize:11,color:C.textMid}}>{t.sector} · 🛡 {t.seguridad}</div></div>
-                <div style={{textAlign:"right"}}><div style={{fontSize:18,fontWeight:900,color:C.accent}}>{t.cuposMax-t.cuposDisponibles}</div><div style={{fontSize:10,color:C.textLight}}>en uso</div></div>
-              </div>
-            </div>
-          ))}
-        </>)}
-        {tab==="piloto"&&(<>
-          <div style={{...card(),background:C.navy,padding:"14px 16px"}}>
-            <div style={{fontSize:11,fontWeight:700,color:"rgba(255,255,255,0.5)",textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:6}}>Hipótesis · Iteración 4</div>
-            <div style={{fontSize:13,color:"rgba(255,255,255,0.85)",lineHeight:1.5}}>"Los comerciantes aceptan reubicarse si el punto es <strong style={{color:"white"}}>seguro</strong> y <strong style={{color:"white"}}>territorialmente cercano</strong>."</div>
-          </div>
-          <div style={card()}>
-            <div style={{fontSize:13,fontWeight:800,color:C.text,marginBottom:12}}>Embudo de Conversión</div>
-            {[[offers.length,"Comerciantes contactados",C.navy],[accepted+rejected,"Tomaron una decisión",C.info],[accepted,"Aceptaron",C.success],[arrived,"Llegaron al punto","#1A8A50"]].map(([v,l,col],i)=>(
-              <div key={l} style={{marginBottom:i<3?10:0}}>
-                <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}><span style={{fontSize:12,color:C.textMid}}>{l}</span><span style={{fontSize:13,fontWeight:800,color:col}}>{v}</span></div>
-                <div style={{height:8,background:C.bg,borderRadius:4,border:`1px solid ${C.border}`,overflow:"hidden"}}><div style={{height:"100%",width:`${offers.length>0?(v/Math.max(offers.length,1))*100:0}%`,background:col,borderRadius:4}}/></div>
-              </div>
-            ))}
-            {offers.length===0&&<div style={{textAlign:"center",padding:"16px 0",fontSize:12,color:C.textLight}}>El fiscalizador debe escanear comerciantes para ver datos.</div>}
-          </div>
-          {total>0&&(
-            <div style={card()}>
-              <div style={{fontSize:13,fontWeight:800,color:C.text,marginBottom:10}}>Tasa de conversión</div>
-              <div style={{display:"flex",alignItems:"center",gap:14}}>
-                <div style={{textAlign:"center"}}><div style={{fontSize:42,fontWeight:900,color:rate>=50?C.success:C.danger}}>{rate}%</div><div style={{fontSize:10,color:C.textMid}}>aceptaron</div></div>
-                <div style={{flex:1}}>
-                  <div style={{height:12,background:C.bg,borderRadius:6,overflow:"hidden",border:`1px solid ${C.border}`,marginBottom:6}}><div style={{height:"100%",width:`${rate}%`,background:rate>=50?C.success:C.danger,borderRadius:6}}/></div>
-                  <div style={{display:"flex",gap:8}}>
-                    <div style={{flex:1,textAlign:"center",padding:"6px",background:C.successBg,borderRadius:6}}><div style={{fontSize:18,fontWeight:900,color:C.success}}>{accepted}</div><div style={{fontSize:9,color:C.success}}>Aceptaron</div></div>
-                    <div style={{flex:1,textAlign:"center",padding:"6px",background:C.dangerBg,borderRadius:6}}><div style={{fontSize:18,fontWeight:900,color:C.danger}}>{rejected}</div><div style={{fontSize:9,color:C.danger}}>Rechazaron</div></div>
-                    <div style={{flex:1,textAlign:"center",padding:"6px",background:C.successBg,borderRadius:6}}><div style={{fontSize:18,fontWeight:900,color:C.success}}>{arrived}</div><div style={{fontSize:9,color:C.success}}>Llegaron</div></div>
-                  </div>
+                <div style={{display:"flex",gap:7}}>
+                  <div style={{padding:"4px 8px",background:C.infoBg,borderRadius:5,fontSize:11,fontWeight:700,color:C.info}}>📍 {sv.zonaHabitual}</div>
+                  <div style={{padding:"4px 8px",background:C.bg,borderRadius:5,fontSize:11,fontWeight:600,color:C.textMid}}>{sv.categoria}</div>
                 </div>
               </div>
-            </div>
-          )}
-          {rejected>0&&(
-            <div style={card()}>
-              <div style={{fontSize:13,fontWeight:800,color:C.text,marginBottom:10}}>Razones de Rechazo</div>
-              {Object.entries(rejReasons).map(([r,cnt])=>(
-                <div key={r} style={{marginBottom:8}}>
-                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}><span style={{fontSize:11,color:C.textMid,flex:1}}>{r}</span><span style={{fontSize:12,fontWeight:800,color:C.danger,marginLeft:8}}>{cnt}</span></div>
-                  <div style={{height:6,background:C.bg,borderRadius:3,border:`1px solid ${C.border}`,overflow:"hidden"}}><div style={{height:"100%",width:`${(cnt/rejected)*100}%`,background:C.danger,borderRadius:3}}/></div>
+              {st&&<div style={{width:"88%"}}><TiendaSuggestionCard tienda={st} vendor={sv} onOffer={handleOffer} onSkip={handleSkip}/></div>}
+            </>)}
+            {step===3&&currentOffer&&(<>
+              <div style={{width:"88%",...card()}}>
+                <div style={{fontSize:13,fontWeight:800,color:C.text,marginBottom:8}}>Oferta enviada</div>
+                <div style={{padding:"10px 12px",background:C.infoBg,borderRadius:8,marginBottom:8}}>
+                  <div style={{fontWeight:700,color:C.info,fontSize:13}}>{currentOffer.vendor.nombre}</div>
+                  <div style={{fontSize:12,color:C.textMid,marginTop:2}}>→ {currentOffer.tienda.nombre}</div>
                 </div>
-              ))}
-            </div>
-          )}
-          {criterion?(
-            <div style={{...card(),border:`2px solid ${C[ctype]}`,borderRadius:12}}>
-              <div style={{fontSize:11,fontWeight:700,color:C[ctype],textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:6}}>Criterio de Decisión</div>
-              <div style={{fontSize:22,fontWeight:900,color:C[ctype],marginBottom:6}}>{criterion}</div>
-              <div style={{fontSize:13,color:C.textMid,lineHeight:1.5}}>{cdesc}</div>
-              <div style={{marginTop:10,padding:"8px 12px",background:C[`${ctype}Bg`]||C.bg,borderRadius:7}}>
-                <div style={{fontSize:11,color:C[ctype],fontWeight:700}}>Umbral: {rate}% · {rate>=50?"✓ Supera el 50%":"✗ Bajo el 50%"}</div>
+                {currentOffer.status==='pending'&&<div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 10px",background:C.warningBg,borderRadius:7}}><span style={{fontSize:16}}>⏳</span><span style={{fontSize:12,fontWeight:600,color:C.warning}}>Esperando decisión en su celular</span></div>}
+                {currentOffer.status==='accepted'&&<div style={{padding:"10px 12px",background:C.successBg,borderRadius:8}}><div style={{fontWeight:800,color:C.success,fontSize:14}}>✓ Aceptó oferta</div></div>}
+                {currentOffer.status==='rejected'&&<div style={{padding:"10px 12px",background:C.dangerBg,borderRadius:8}}><div style={{fontWeight:800,color:C.danger,fontSize:14}}>✗ Rechazó oferta</div></div>}
               </div>
-            </div>
-          ):(
-            <div style={{...card(),textAlign:"center",padding:"20px 14px"}}>
-              <div style={{fontSize:22,marginBottom:6}}>📊</div>
-              <div style={{fontSize:13,fontWeight:700,color:C.text,marginBottom:4}}>Sin criterio aún</div>
-              <div style={{fontSize:12,color:C.textMid}}>Se necesita al menos 1 decisión para determinar: Perseverar, Ajustar o Pivotear.</div>
-            </div>
-          )}
-        </>)}
-        {tab==="mapa"&&(<>
-          <div style={{...card({padding:0,overflow:"hidden"})}}><HeatMap zones={ZONAS} onZoneClick={()=>{}}/></div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-            {[[ZONAS.length,"Zonas"],[TIENDAS.length,"Tiendas"],[crit.length,"Críticas"],[TIENDAS.reduce((a,t)=>a+t.cuposDisponibles,0),"Cupos libres"]].map(([v,l])=>(
-              <div key={l} style={{...card({textAlign:"center",padding:"14px 10px"})}}><div style={{fontSize:24,fontWeight:900,color:C.navy}}>{v}</div><div style={{fontSize:11,color:C.textMid,marginTop:2}}>{l}</div></div>
-            ))}
-          </div>
-        </>)}
-        {tab==="config"&&(
-          <div style={card()}>
-            <div style={{fontSize:14,fontWeight:800,color:C.text,marginBottom:12}}>Parámetros del sistema</div>
-            {[["Cupos máx. por tienda","10 espacios"],["Horas máx. de jornada","8 horas"],["Puntos por reubicación","30 pts"],["Puntos por llegada confirmada","30 pts"],["Umbral zona crítica","30 vendedores"],["Ponderación seguridad","Alta (×1.5)"],["Umbral piloto Perseverar","50%"]].map(([lbl,val],i,arr)=>(
-              <div key={lbl} style={{display:"flex",justifyContent:"space-between",padding:"10px 0",borderBottom:i<arr.length-1?`1px solid ${C.border}`:"none"}}>
-                <span style={{fontSize:13,color:C.textMid}}>{lbl}</span>
-                <span style={{fontSize:13,fontWeight:800,color:C.text}}>{val}</span>
-              </div>
-            ))}
+              <button onClick={handleReset} style={{width:"88%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:9,padding:"12px",fontSize:13,fontWeight:700,color:C.textMid,cursor:"pointer",fontFamily:"inherit"}}>+ Nuevo escaneo</button>
+            </>)}
           </div>
         )}
       </Scroll>
-      <BottomNav tabs={[{id:"dashboard",icon:"📊",label:"Dashboard"},{id:"piloto",icon:"🧪",label:"Piloto"},{id:"mapa",icon:"🗺",label:"Mapa"},{id:"config",icon:"⚙️",label:"Config"}]} active={tab} onChange={setTab}/>
+      <BottomNav tabs={[{id:"scanner",icon:"▣",label:"Escanear QR"}]} active={tab} onChange={setTab}/>
+    </div>
+  );
+}
+
+/* ── KIOSKO VIEW ─────────────────────────────── */
+function KioskoView({onExit}){
+  const[rut,setRut]=useState('');
+  const[result,setResult]=useState(null);
+  const[timer,setTimer]=useState(30);
+  const[loading,setLoading]=useState(false);
+
+  useEffect(()=>{
+    if(!result)return;
+    setTimer(30);
+    const iv=setInterval(()=>setTimer(t=>{if(t<=1){setResult(null);setRut('');return 30;}return t-1;}),1000);
+    return()=>clearInterval(iv);
+  },[result]);
+
+  const fmt=(raw)=>{
+    const c=raw.replace(/[^0-9kK]/g,'');
+    if(!c)return '';
+    const dv=c.slice(-1).toUpperCase(),num=c.slice(0,-1);
+    if(!num)return dv;
+    let out='',n=num;
+    while(n.length>3){out='.'+n.slice(-3)+out;n=n.slice(0,-3);}
+    return n+out+'-'+dv;
+  };
+
+  const handleInput=(v)=>setRut(fmt(v.replace(/[^0-9kK.]/g,'').replace(/\./g,'').replace(/-/g,'')));
+
+  const search=()=>{
+    setLoading(true);
+    setTimeout(()=>{
+      const clean=rut.replace(/\./g,'').replace(/-/g,'').toLowerCase();
+      const found=VENDORS.find(v=>v.rut.replace(/\./g,'').replace(/-/g,'').toLowerCase()===clean);
+      setResult(found||'notfound');
+      setLoading(false);
+    },500);
+  };
+
+  const reset=()=>{setResult(null);setRut('');};
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",height:"100%",background:C.bg}}>
+      <div style={{background:C.navy,padding:"14px 16px",flexShrink:0}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div>
+            <div style={{fontSize:10,color:"rgba(255,255,255,0.5)",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em"}}>Terminal Municipal</div>
+            <div style={{fontSize:17,fontWeight:800,color:"white"}}>🖥️ Kiosko PuntoLibre</div>
+          </div>
+          <button onClick={onExit} style={{background:"rgba(255,255,255,0.12)",border:"1px solid rgba(255,255,255,0.2)",borderRadius:8,padding:"6px 12px",fontSize:12,color:"white",cursor:"pointer",fontWeight:700}}>Salir</button>
+        </div>
+      </div>
+      <Scroll>
+        {!result&&(
+          <>
+            <div style={{...card(),textAlign:"center",padding:"22px 16px"}}>
+              <div style={{fontSize:40,marginBottom:10}}>🆔</div>
+              <div style={{fontSize:16,fontWeight:800,color:C.text,marginBottom:6}}>Busca tu QR Personal</div>
+              <div style={{fontSize:12,color:C.textMid}}>Ingresa tu RUT para obtener tu código de identificación sin necesitar un smartphone</div>
+            </div>
+            <div style={card()}>
+              <div style={{fontSize:11,fontWeight:700,color:C.textLight,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:8}}>Tu RUT</div>
+              <input value={rut} onChange={e=>handleInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&rut&&search()} placeholder="12.345.678-9"
+                style={{width:"100%",fontSize:22,fontWeight:800,padding:"14px 16px",borderRadius:10,border:`2px solid ${C.border}`,background:C.bg,color:C.text,outline:"none",letterSpacing:"0.05em",textAlign:"center",fontFamily:"inherit"}}/>
+              <button onClick={search} disabled={!rut||loading}
+                style={{width:"100%",marginTop:10,background:rut?C.accent:"#ccc",color:"white",border:"none",borderRadius:10,padding:"16px",fontSize:16,fontWeight:800,cursor:rut?"pointer":"default",fontFamily:"inherit",boxShadow:rut?"0 6px 18px rgba(232,25,44,0.3)":"none",animation:rut?"kioskGlow 2s ease-in-out infinite":"none"}}>
+                {loading?"Buscando...":"🔍 Buscar mi QR"}
+              </button>
+            </div>
+          </>
+        )}
+        {result==='notfound'&&(
+          <div style={{...card(),textAlign:"center",padding:"26px 16px"}}>
+            <div style={{fontSize:38,marginBottom:10}}>❌</div>
+            <div style={{fontSize:16,fontWeight:800,color:C.danger,marginBottom:6}}>RUT no encontrado</div>
+            <div style={{fontSize:12,color:C.textMid,marginBottom:16}}>El RUT <strong>{rut}</strong> no está registrado en el sistema.</div>
+            <button onClick={reset} style={{background:C.navy,color:"white",border:"none",borderRadius:10,padding:"12px 22px",fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:"inherit"}}>← Intentar de nuevo</button>
+          </div>
+        )}
+        {result&&result!=='notfound'&&(
+          <>
+            <div style={{...card({background:C.infoBg,border:`1px solid ${C.info}`}),display:"flex",alignItems:"center",gap:10,padding:"10px 14px"}}>
+              <div style={{width:36,height:36,borderRadius:"50%",background:C.info,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,fontWeight:900,color:"white",flexShrink:0}}>{timer}</div>
+              <div style={{flex:1}}>
+                <div style={{fontSize:12,fontWeight:700,color:C.info}}>Pantalla activa por {timer}s</div>
+                <div style={{fontSize:10,color:C.textMid}}>Se limpiará automáticamente</div>
+              </div>
+            </div>
+            <div style={{...card({display:"flex",flexDirection:"column",alignItems:"center",gap:12,padding:"20px 15px"})}}>
+              <div style={{fontSize:10,fontWeight:700,color:C.textLight,letterSpacing:"0.1em",textTransform:"uppercase"}}>Tu código de identificación</div>
+              <div style={{padding:14,background:"white",borderRadius:12,border:`2px solid ${C.border}`}}>
+                <img src="qr-code.png" width="180" height="180" style={{display:"block", margin:"0 auto"}} alt="QR" />
+              </div>
+              <div style={{textAlign:"center"}}>
+                <div style={{fontSize:22,fontWeight:900,color:C.navy,letterSpacing:"0.08em"}}>{result.codigo}</div>
+                <div style={{fontSize:15,fontWeight:800,color:C.text,marginTop:2}}>{result.nombre}</div>
+                <div style={{fontSize:11,color:C.textLight}}>RUT {result.rut}</div>
+              </div>
+            </div>
+          </>
+        )}
+      </Scroll>
     </div>
   );
 }
@@ -1137,8 +654,8 @@ function Login({onLogin}){
   const[u,setU]=useState("");const[p,setP]=useState("");const[err,setErr]=useState("");
   const go=(user,pass)=>{
     if(user==='kiosko'){onLogin('kiosko');return;}
-    const v={admin:"123",fiscal:"123",comerciante:"123",ancla:"123"};
-    if(v[user.toLowerCase()]===pass){onLogin(user.toLowerCase());}else{setErr("Usuario o contraseña incorrectos");}
+    const v={fiscal:"123",comerciante:"123"};
+    if(v[user.toLowerCase()]===pass){onLogin(user.toLowerCase());}else{setErr("Contraseña 123");}
   };
   return(
     <div style={{display:"flex",flexDirection:"column",flex:1,background:C.navy,overflowY:"auto"}}>
@@ -1148,20 +665,13 @@ function Login({onLogin}){
           <div style={{fontSize:28,fontWeight:900,color:"white",letterSpacing:"-0.3px"}}>PuntoLibre</div>
           <div style={{fontSize:13,color:"rgba(255,255,255,0.5)",marginTop:5}}>Comercio ambulante ordenado y digno</div>
         </div>
-        <div style={{width:"100%",display:"flex",flexDirection:"column",gap:10}}>
-          <input value={u} onChange={e=>{setU(e.target.value);setErr("");}} placeholder="Usuario" style={{background:"rgba(255,255,255,0.10)",border:"1px solid rgba(255,255,255,0.15)",borderRadius:12,padding:"14px 16px",fontSize:15,color:"white",outline:"none",fontFamily:"inherit",width:"100%"}}/>
-          <input type="password" value={p} onChange={e=>{setP(e.target.value);setErr("");}} placeholder="Contraseña" onKeyDown={e=>e.key==="Enter"&&go(u,p)} style={{background:"rgba(255,255,255,0.10)",border:"1px solid rgba(255,255,255,0.15)",borderRadius:12,padding:"14px 16px",fontSize:15,color:"white",outline:"none",fontFamily:"inherit",width:"100%"}}/>
-          {err&&<div style={{fontSize:12,color:"#FF8090",textAlign:"center"}}>{err}</div>}
-          <button onClick={()=>go(u,p)} style={{background:C.accent,color:"white",border:"none",borderRadius:12,padding:"15px",fontSize:15,fontWeight:800,cursor:"pointer",fontFamily:"inherit",marginTop:4,boxShadow:"0 4px 16px rgba(232,25,44,0.4)"}}>Iniciar Sesión</button>
-        </div>
         <div style={{marginTop:24,width:"100%"}}>
-          <div style={{textAlign:"center",fontSize:10,color:"rgba(255,255,255,0.35)",marginBottom:10,letterSpacing:"0.08em",textTransform:"uppercase",fontWeight:700}}>Acceso rápido · clave: 123</div>
+          <div style={{textAlign:"center",fontSize:10,color:"rgba(255,255,255,0.35)",marginBottom:10,letterSpacing:"0.08em",textTransform:"uppercase",fontWeight:700}}>Selecciona tu perfil de prueba</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-            {[["Administrador","admin","🏛"],["Fiscalizador","fiscal","👮"],["Comerciante","comerciante","🛒"],["Tienda Ancla","ancla","🏪"]].map(([lbl,role,icon])=>(
+            {[["Fiscalizador","fiscal","👮"],["Comerciante","comerciante","🛒"]].map(([lbl,role,icon])=>(
               <button key={role} onClick={()=>go(role,"123")} style={{background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.14)",borderRadius:12,padding:"12px 8px",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:5}}>
                 <span style={{fontSize:22,lineHeight:1}}>{icon}</span>
                 <span style={{fontSize:11,fontWeight:800,color:"white",fontFamily:"inherit"}}>{lbl}</span>
-                <span style={{fontSize:9,color:"rgba(255,255,255,0.4)"}}>{role} / 123</span>
               </button>
             ))}
           </div>
@@ -1169,7 +679,7 @@ function Login({onLogin}){
             <span style={{fontSize:22}}>🖥️</span>
             <div style={{textAlign:"left"}}>
               <div style={{fontSize:12,fontWeight:800,color:"white",fontFamily:"inherit"}}>Terminal Kiosko</div>
-              <div style={{fontSize:9,color:"rgba(255,255,255,0.4)"}}>Sin contraseña · Buscar QR por RUT</div>
+              <div style={{fontSize:9,color:"rgba(255,255,255,0.4)"}}>Buscar QR por RUT</div>
             </div>
           </button>
         </div>
@@ -1182,18 +692,36 @@ function Login({onLogin}){
 function App(){
   const[role,setRole]=useState(null);
   const[pilotData,setPilotData]=useState({offers:[]});
+  
   const handleOffer=(vendor,tienda)=>{
     const id=`offer_${Date.now()}`;
     setPilotData(p=>({offers:[{id,timestamp:new Date().toLocaleTimeString("es-CL",{hour:"2-digit",minute:"2-digit"}),vendor,tienda,status:'pending',rejectionReason:null,decidedAt:null,arrived:false,arrivedAt:null},...p.offers]}));
     return id;
   };
+
+  /* LA MAGIA: Esta función crea una oferta falsa directamente en el celular del comerciante */
+  const injectFakeOffer=()=>{
+    const id=`offer_fake_${Date.now()}`;
+    setPilotData(p=>({
+      offers:[{
+        id,
+        timestamp:new Date().toLocaleTimeString("es-CL",{hour:"2-digit",minute:"2-digit"}),
+        vendor:VENDORS[0], // Carlos Muñoz
+        tienda:TIENDAS[0], // Galería El Vecino
+        status:'pending', rejectionReason:null, decidedAt:null, arrived:false, arrivedAt:null
+      },...p.offers]
+    }));
+  };
+
   const handleDecide=(offerId,decision,reason=null)=>{
     setPilotData(p=>({offers:p.offers.map(o=>o.id===offerId?{...o,status:decision,rejectionReason:reason,decidedAt:new Date().toLocaleTimeString("es-CL",{hour:"2-digit",minute:"2-digit"})}:o)}));
   };
   const handleArrived=(offerId)=>{
     setPilotData(p=>({offers:p.offers.map(o=>o.id===offerId?{...o,arrived:true,arrivedAt:new Date().toLocaleTimeString("es-CL",{hour:"2-digit",minute:"2-digit"})}:o)}));
   };
+  
   const latestOffer=pilotData.offers.find(o=>o.vendor.uid==='v1')||null;
+  
   return(
     <div style={{width:"100%",maxWidth:390,height:800,borderRadius:38,overflow:"hidden",boxShadow:"0 24px 60px rgba(15,35,66,0.35),0 0 0 8px rgba(255,255,255,0.12)",background:C.navy,display:"flex",flexDirection:"column"}}>
       <div style={{background:C.navy,height:32,display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 20px",flexShrink:0,borderBottom:"1px solid rgba(255,255,255,0.07)"}}>
@@ -1206,9 +734,7 @@ function App(){
       </div>
       {!role&&<Login onLogin={setRole}/>}
       {role==="fiscal"&&<FiscalizadorView onLogout={()=>setRole(null)} pilotData={pilotData} onOffer={handleOffer}/>}
-      {role==="comerciante"&&<ComercianteView onLogout={()=>setRole(null)} latestOffer={latestOffer} onDecide={handleDecide} onArrived={handleArrived}/>}
-      {role==="ancla"&&<TiendaAnclaView onLogout={()=>setRole(null)} pilotData={pilotData}/>}
-      {role==="admin"&&<AdminView onLogout={()=>setRole(null)} pilotData={pilotData}/>}
+      {role==="comerciante"&&<ComercianteView onLogout={()=>setRole(null)} latestOffer={latestOffer} onDecide={handleDecide} onArrived={handleArrived} injectFakeOffer={injectFakeOffer}/>}
       {role==="kiosko"&&<KioskoView onExit={()=>setRole(null)}/>}
     </div>
   );
