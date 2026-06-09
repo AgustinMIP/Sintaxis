@@ -1,0 +1,9 @@
+{
+  "comerciantes": [
+    {"comerciante_id":"C001","nombre":"Rosa Herrera","rut":"12.847.391-5","categoria":"Bisutería","zona_habitual":"Paseo Ahumada","estado":"en_calle"},
+    {"comerciante_id":"C002","nombre":"Marcos Tapia","rut":"9.634.752-8","categoria":"Ropa","zona_habitual":"Paseo Ahumada","estado":"en_calle"},
+    {"comerciante_id":"C003","nombre":"Valentina Cruz","rut":"15.203.847-K","categoria":"Accesorios","zona_habitual":"Alameda","estado":"en_calle"},
+    {"comerciante_id":"C004","nombre":"Carlos Muñoz","rut":"11.456.283-2","categoria":"Libros usados","zona_habitual":"Lastarria","estado":"en_calle"},
+    {"comerciante_id":"C005","nombre":"Patricia Yáñez","rut":"8.971.634-7","categoria":"Artesanía","zona_habitual":"Paseo Ahumada","estado":"en_calle"}
+  ]
+}

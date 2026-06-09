@@ -1,0 +1,31 @@
+{
+  "tiendas_ancla": [
+    {
+      "tienda_id": "T001",
+      "nombre": "Papachecos",
+      "direccion": "José Victorino Lastarria 160, Santiago, Chile",
+      "capacidad": 2,
+      "horario_inicio": "12:00",
+      "horario_cierre": "22:00",
+      "ocupacion_actual": 0
+    },
+    {
+      "tienda_id": "T002",
+      "nombre": "GMO",
+      "direccion": "Paseo Ahumada 99, Santiago, Chile",
+      "capacidad": 4,
+      "horario_inicio": "08:30",
+      "horario_cierre": "21:00",
+      "ocupacion_actual": 0
+    },
+    {
+      "tienda_id": "T003",
+      "nombre": "Las Dalias",
+      "direccion": "Avenida Libertador Bernardo O'Higgins 620, Santiago, Chile",
+      "capacidad": 5,
+      "horario_inicio": "11:00",
+      "horario_cierre": "20:00",
+      "ocupacion_actual": 0
+    }
+  ]
+}
